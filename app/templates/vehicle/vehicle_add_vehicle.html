@@ -4,4 +4,58 @@
 
 <h1>ADD VEHICLE</h1>
 
+<form action="" method="post">
+    {{ vehicle_data_form.hidden_tag() }}
+    <p>
+        {{ vehicle_data_form.vehicle_nickname.label }}<br>
+        {{ vehicle_data_form.vehicle_nickname(size=32) }}<br>
+        {% for error in vehicle_data_form.vehicle_nickname.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ vehicle_data_form.vrn.label }}<br>
+        {{ vehicle_data_form.vrn(size=64) }}<br>
+        {% for error in vehicle_data_form.vrn.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ vehicle_data_form.vehicle_make.label }}<br>
+        {{ vehicle_data_form.vehicle_make(size=32) }}<br>
+        {% for error in vehicle_data_form.vehicle_make.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ vehicle_data_form.vehicle_model.label }}<br>
+        {{ vehicle_data_form.vehicle_model(size=32) }}<br>
+        {% for error in vehicle_data_form.vehicle_model.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ vehicle_data_form.vehicle_fuel_tank_size.label }}<br>
+        {{ vehicle_data_form.vehicle_fuel_tank_size(size=32) }}<br>
+        {% for error in vehicle_data_form.vehicle_fuel_tank_size.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ vehicle_data_form.vehicle_fuel_type.label }}<br>
+        {{ vehicle_data_form.vehicle_fuel_type(size=32) }}<br>
+        {% for error in vehicle_data_form.vehicle_fuel_type.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ vehicle_data_form.vehicle_active.label }}<br>
+        {{ vehicle_data_form.vehicle_active(size=32) }}<br>
+        {% for error in vehicle_data_form.vehicle_active.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>{{ vehicle_data_form.submit() }}</p>
+</form>
+
 {% endblock %}
