@@ -1,4 +1,5 @@
-from sqlalchemy import Integer, String
+from sqlalchemy import Integer, String, Date
+from datetime import datetime, timezone
 import sqlalchemy.orm as so 
 from flask_login import UserMixin 
 from app import db, login
@@ -50,4 +51,60 @@ class UserRoles(db.Model):
     id = db.Column(Integer, primary_key=True)
     user_id = db.Column(Integer, db.ForeignKey('user.id'))
     role_id = db.Column(Integer, db.ForeignKey('role.id'))
+
+    # Relationships
+
+
+
+# Model for vehicle information
+class VehicleData(db.Model):
+    id = db.Column(Integer, primary_key = True)
+    user_id = db.Column(Integer, db.ForeignKey('user.id')) 
+    vehicle_nickname = db.Column(db.String(64))
+    vrn = db.Column(db.String(64))
+    vehicle_make = db.Column(db.String(64))
+    vehicle_model = db.Column(db.String(64))
+    vehicle_fuel_tank_size = db.Column(db.Integer)
+    vehicle_fuel_type = db.Column(db.String(64))
+    vehicle_active = db.Column(db.Boolean, default=True)
+
+    # Relationships
+    
+class FuelEntryLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    entry_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    vrn = db.Column(db.String(64))
+    fuel_price = db.Column(db.Integer)
+    vehicle_mileage = db.Column(db.Integer)
+    fuel_cost = db.Column(db.Integer)
+    actual_miles = db.Column(db.Integer)
+
+    def calculatePricePerLitre(self):
+        return self.fuel_price / 1000
+    
+    def calculateLitre(self):
+        return self.fuel_cost / self.calculatePricePerLitre()
+    
+    def calculateGallon(self):
+        gallonperlitre = 4.54609
+        return self.calculateLitre() / gallonperlitre
+
+    def calculateActualMiles(self):
+        previous_entry = FuelEntryLog.query.filter_by(vrn=self.vrn).order_by(FuelEntryLog.entry_date.desc()).first()
+        if previous_entry:
+            self.actual_miles = self.vehicle_mileage - previous_entry.vehicle_mileage
+        else:
+            self.actual_miles = 0
+        return self.actual_miles
+
+    def calculateMPG(self):
+        miles = self.calculateActualMiles()
+        gallons = self.calculateGallon()
+        return miles / gallons if gallons else 0
+
+
+    # Relationships
+
+
     
