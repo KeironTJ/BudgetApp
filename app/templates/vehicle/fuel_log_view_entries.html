@@ -27,7 +27,7 @@
                 <tr>
                     <td>{{entry.id}}</td>
                     <td>{{entry.user_id}}</td>
-                    <td>{{entry.entry_date}}</td>
+                    <td>{{ entry.entry_date.strftime('%d-%m-%Y') }}</td>
                     <td>{{entry.vrn}}</td>
                     <td>{{entry.fuel_price}}</td>
                     <td>{{entry.vehicle_mileage}}</td>

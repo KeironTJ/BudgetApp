@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm 
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, DateField
+from wtforms import DecimalField, StringField, PasswordField, BooleanField, SubmitField, IntegerField, DateField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError 
 from app import db
 import sqlalchemy as sa 
@@ -18,9 +18,9 @@ class AddVehicleDataForm(FlaskForm):
 
 
 class AddFuelDataForm(FlaskForm):
-    vehicle_nickname = StringField('Vehicle Nickname', validators=[DataRequired()]) #TODO: Make This a selection field
+    vehicle_nickname = StringField('Vehicle Nickname', validators=[DataRequired()])  # TODO: Make This a selection field
     entry_date = DateField('Date of Fueling', validators=[DataRequired()])
-    fuel_price = IntegerField('Fuel Price', validators=[DataRequired()])
+    fuel_price = DecimalField('Fuel Price', validators=[DataRequired()])
     vehicle_mileage = IntegerField('Mileage', validators=[DataRequired()])
-    fuel_cost = IntegerField('Fuel Cost', validators=[DataRequired()])
+    fuel_cost = DecimalField('Fuel Cost', validators=[DataRequired()])
     submit = SubmitField('Add Fuel Entry')

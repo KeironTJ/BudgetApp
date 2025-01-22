@@ -4,6 +4,7 @@ from flask_login import login_required, current_user
 from app.models import VehicleData, FuelEntryLog
 from app import db
 from app.vehicle.forms import AddVehicleDataForm, AddFuelDataForm
+from decimal import Decimal
 
 ### VEHICLES
 @bp.route('/vehicle_home')
@@ -51,17 +52,25 @@ def fuel_log_add_entry():
     add_fuel_data_form = AddFuelDataForm()
 
     if request.method == 'POST' and add_fuel_data_form.validate():
-        fuel_data = FuelEntryLog(user_id = current_user.id,
-                                   vrn = add_fuel_data_form.vehicle_nickname.data, #TODO: CHANGE TO SELECT vrn via nickname
-                                   entry_date = add_fuel_data_form.entry_date.data,
-                                   fuel_price = add_fuel_data_form.fuel_price.data,
-                                   vehicle_mileage = add_fuel_data_form.vehicle_mileage.data,
-                                   fuel_cost = add_fuel_data_form.fuel_cost.data)
+        fuel_data = FuelEntryLog(
+            user_id=current_user.id,
+            vrn=add_fuel_data_form.vehicle_nickname.data,  # TODO: CHANGE TO SELECT vrn via nickname
+            entry_date=add_fuel_data_form.entry_date.data,
+            fuel_price=float(add_fuel_data_form.fuel_price.data),
+            vehicle_mileage=add_fuel_data_form.vehicle_mileage.data,
+            fuel_cost=float(add_fuel_data_form.fuel_cost.data)
+        )
         
-        fuel_data.calculateActualMiles(),
-        fuel_data.calculateLitre(),
-        fuel_data.calculateGallon(),
+        # Calculate additional fields
+        fuel_data.calculateActualMiles()
+        fuel_data.calculateLitre()
+        fuel_data.calculateGallon()
         fuel_data.calculateMPG()
+
+        # Convert Decimal fields to float before committing to the database
+        fuel_data.litres = float(fuel_data.litres)
+        fuel_data.gallon = float(fuel_data.gallon)
+        fuel_data.mpg = float(fuel_data.mpg)
 
         db.session.add(fuel_data)
         db.session.commit()

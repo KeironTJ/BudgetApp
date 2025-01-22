@@ -1,4 +1,5 @@
 from sqlalchemy import Integer, String, Date
+from decimal import Decimal
 from datetime import datetime, timezone
 import sqlalchemy.orm as so 
 from flask_login import UserMixin 
@@ -84,13 +85,13 @@ class FuelEntryLog(db.Model):
     mpg = db.Column(db.Integer)
 
     def calculatePricePerLitre(self):
-        return self.fuel_price / 1000
+        return Decimal(self.fuel_price) / Decimal(1000)
     
     def calculateLitre(self):
-        self.litres = self.fuel_cost / self.calculatePricePerLitre()
+        self.litres = Decimal(self.fuel_cost) / self.calculatePricePerLitre()
     
     def calculateGallon(self):
-        gallonperlitre = 4.54609
+        gallonperlitre = Decimal('4.54609')
         self.gallon = self.litres / gallonperlitre
 
     def calculateActualMiles(self):
@@ -106,6 +107,7 @@ class FuelEntryLog(db.Model):
         self.mpg = self.actual_miles / self.gallon if self.gallon else 0
 
 
+        
     # Relationships
 
 
