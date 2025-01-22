@@ -74,21 +74,24 @@ class FuelEntryLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     entry_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-    vrn = db.Column(db.String(64))
+    vrn = db.Column(db.String(64))  
     fuel_price = db.Column(db.Integer)
     vehicle_mileage = db.Column(db.Integer)
     fuel_cost = db.Column(db.Integer)
     actual_miles = db.Column(db.Integer)
+    litres = db.Column(db.Integer)
+    gallon = db.Column(db.Integer)
+    mpg = db.Column(db.Integer)
 
     def calculatePricePerLitre(self):
         return self.fuel_price / 1000
     
     def calculateLitre(self):
-        return self.fuel_cost / self.calculatePricePerLitre()
+        self.litres = self.fuel_cost / self.calculatePricePerLitre()
     
     def calculateGallon(self):
         gallonperlitre = 4.54609
-        return self.calculateLitre() / gallonperlitre
+        self.gallon = self.litres / gallonperlitre
 
     def calculateActualMiles(self):
         previous_entry = FuelEntryLog.query.filter_by(vrn=self.vrn).order_by(FuelEntryLog.entry_date.desc()).first()
@@ -96,12 +99,11 @@ class FuelEntryLog(db.Model):
             self.actual_miles = self.vehicle_mileage - previous_entry.vehicle_mileage
         else:
             self.actual_miles = 0
-        return self.actual_miles
 
     def calculateMPG(self):
-        miles = self.calculateActualMiles()
-        gallons = self.calculateGallon()
-        return miles / gallons if gallons else 0
+        self.calculateActualMiles()
+        self.calculateGallon()
+        self.mpg = self.actual_miles / self.gallon if self.gallon else 0
 
 
     # Relationships
