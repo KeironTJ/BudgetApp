@@ -1,0 +1,11 @@
+.custom-button {
+    padding: 40px; /* Adjust padding for a square appearance */
+    font-size: 1.2rem; /* Adjust font size if necessary */
+    border-radius: 0; /* Remove rounded corners for a square look */
+    width: 100%; /* Ensure buttons take full width of their container */
+    height: 100px; /* Set a fixed height for consistency */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
