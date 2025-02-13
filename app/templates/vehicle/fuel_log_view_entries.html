@@ -19,23 +19,25 @@
               <th scope="col">Litres</th>
               <th scope="col">Gallons</th>
               <th scope="col">MPG</th>
+              <th scope="col">Action</th>
             </tr>
           </thead>
 
           <body>
             {% for entry in fuel_log %}
                 <tr>
-                    <td>{{entry.id}}</td>
-                    <td>{{entry.user_id}}</td>
+                    <td>{{ entry.id }}</td>
+                    <td>{{ entry.user_id }}</td>
                     <td>{{ entry.entry_date.strftime('%d-%m-%Y') }}</td>
-                    <td>{{entry.vrn}}</td>
-                    <td>{{entry.fuel_price}}</td>
-                    <td>{{entry.vehicle_mileage}}</td>
-                    <td>{{entry.fuel_cost}}</td>
-                    <td>{{entry.actual_miles}}</td>
-                    <td>{{entry.litres}}</td>
-                    <td>{{entry.gallon}}</td>
-                    <td>{{entry.mpg}}</td>
+                    <td>{{ entry.vrn }}</td>
+                    <td>{{ entry.fuel_price }}</td>
+                    <td>{{ entry.vehicle_mileage }}</td>
+                    <td>{{ entry.fuel_cost }}</td>
+                    <td>{{ entry.actual_miles }}</td>
+                    <td>{{ entry.litres }}</td>
+                    <td>{{ entry.gallon }}</td>
+                    <td>{{ entry.mpg}}</td>
+                    <td>ACTION</td>
                 </tr>
             {% endfor %}
 

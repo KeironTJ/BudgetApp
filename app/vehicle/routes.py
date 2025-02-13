@@ -92,3 +92,19 @@ def fuel_log_view_entries():
     return render_template("vehicle/fuel_log_view_entries.html", 
                            title="View Fuel Log",
                            fuel_log=fuel_log)
+
+
+@bp.route('/journey_add_entry', methods=['GET', 'POST'])
+@login_required
+def journey_add_entry():
+
+
+    return render_template("vehicle/journey_add_entry.html", 
+                           title="Add Journey Entry")
+
+@bp.route('/journey_view_log', methods=['GET', 'POST'])
+@login_required
+def journey_view_log():
+
+    return render_template("vehicle/journey_view_log.html", 
+                           title="View Journey Log")

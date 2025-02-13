@@ -85,14 +85,14 @@ class FuelEntryLog(db.Model):
     mpg = db.Column(db.Integer)
 
     def calculatePricePerLitre(self):
-        return Decimal(self.fuel_price) / Decimal(1000)
+        return self.fuel_price / 100
     
     def calculateLitre(self):
-        self.litres = Decimal(self.fuel_cost) / self.calculatePricePerLitre()
+        self.litres = round(self.fuel_cost / self.calculatePricePerLitre(),2)
     
     def calculateGallon(self):
-        gallonperlitre = Decimal('4.54609')
-        self.gallon = self.litres / gallonperlitre
+        gallonperlitre = 4.54609
+        self.gallon = round(self.litres / gallonperlitre,2)
 
     def calculateActualMiles(self):
         previous_entry = FuelEntryLog.query.filter_by(vrn=self.vrn).order_by(FuelEntryLog.entry_date.desc()).first()
@@ -104,11 +104,5 @@ class FuelEntryLog(db.Model):
     def calculateMPG(self):
         self.calculateActualMiles()
         self.calculateGallon()
-        self.mpg = self.actual_miles / self.gallon if self.gallon else 0
+        self.mpg = round(self.actual_miles / self.gallon,2) if self.gallon else 0
 
-
-        
-    # Relationships
-
-
-    

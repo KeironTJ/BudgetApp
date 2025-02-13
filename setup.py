@@ -1,5 +1,5 @@
 from app import db, create_app
-from app.models import User, UserRoles, Role
+from app.models import User, UserRoles, Role, VehicleData, FuelEntryLog
 
 app=create_app()
 
@@ -46,3 +46,9 @@ db.session.add(test_user_role)
 # Commit all changes 
 db.session.commit()
 print("Data Created")
+
+
+
+
+
+    
