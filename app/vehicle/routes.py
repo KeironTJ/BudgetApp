@@ -49,7 +49,14 @@ def vehicle_add_vehicle():
 @bp.route('/fuel_log_add_entry',methods=['GET', 'POST'])
 @login_required
 def fuel_log_add_entry():
+    current_user_id = current_user.id
+
     add_fuel_data_form = AddFuelDataForm()
+
+    # List for SelectField to vrn choices
+    vehicles = VehicleData.query.filter_by(user_id=current_user_id).all()
+    add_fuel_data_form.vrn.choices = [(vehicle.vrn, vehicle.vrn) for vehicle in vehicles]
+
 
     if request.method == 'POST' and add_fuel_data_form.validate():
         fuel_data = FuelEntryLog(
@@ -92,6 +99,14 @@ def fuel_log_view_entries():
     return render_template("vehicle/fuel_log_view_entries.html", 
                            title="View Fuel Log",
                            fuel_log=fuel_log)
+
+@bp.route('/delete-entry/<int:entry_id>', methods=['POST'])
+def delete_entry(entry_id):
+    entry = FuelEntryLog.query.get_or_404(entry_id)
+    db.session.delete(entry)
+    db.session.commit()
+    flash("Entry Deleted")
+    return redirect(url_for('vehicle.fuel_log_view_entries'))
 
 
 @bp.route('/journey_add_entry', methods=['GET', 'POST'])

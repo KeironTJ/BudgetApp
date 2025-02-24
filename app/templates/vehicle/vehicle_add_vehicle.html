@@ -15,7 +15,7 @@
     </p>
     <p>
         {{ vehicle_data_form.vrn.label }}<br>
-        {{ vehicle_data_form.vrn(size=64) }}<br>
+        {{ vehicle_data_form.vrn(size=16) }}<br>
         {% for error in vehicle_data_form.vrn.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
@@ -36,21 +36,21 @@
     </p>
     <p>
         {{ vehicle_data_form.vehicle_fuel_tank_size.label }}<br>
-        {{ vehicle_data_form.vehicle_fuel_tank_size(size=32) }}<br>
+        {{ vehicle_data_form.vehicle_fuel_tank_size(size=4) }}<br>
         {% for error in vehicle_data_form.vehicle_fuel_tank_size.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
     </p>
     <p>
         {{ vehicle_data_form.vehicle_fuel_type.label }}<br>
-        {{ vehicle_data_form.vehicle_fuel_type(size=32) }}<br>
+        {{ vehicle_data_form.vehicle_fuel_type(size=16) }}<br>
         {% for error in vehicle_data_form.vehicle_fuel_type.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
     </p>
     <p>
         {{ vehicle_data_form.vehicle_active.label }}<br>
-        {{ vehicle_data_form.vehicle_active(size=32) }}<br>
+        {{ vehicle_data_form.vehicle_active }}<br>
         {% for error in vehicle_data_form.vehicle_active.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
