@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask 
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
@@ -14,6 +16,16 @@ login.login_view = 'auth.login'
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
+
+    if os.getenv('FLASK_ENV') == 'development':
+        app.config.from_object('config.DevelopmentConfig')
+    else:
+        app.config.from_object('config.ProductionConfig')
+
+    # Debugging to confirm config is loaded
+    #print("Config Loaded: ", app.config)
+
+
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)

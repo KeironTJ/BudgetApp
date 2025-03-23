@@ -1,8 +1,8 @@
-"""empty message
+"""Initial migration
 
-Revision ID: 8580a3b3e9d3
+Revision ID: 5bc716f606ea
 Revises: 
-Create Date: 2025-01-16 15:09:49.880768
+Create Date: 2025-03-23 21:56:15.257902
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '8580a3b3e9d3'
+revision = '5bc716f606ea'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -40,6 +40,15 @@ def upgrade():
     op.create_table('fuel_entry_log',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('entry_date', sa.DateTime(), nullable=True),
+    sa.Column('vrn', sa.String(length=64), nullable=True),
+    sa.Column('fuel_price', sa.Integer(), nullable=True),
+    sa.Column('vehicle_mileage', sa.Integer(), nullable=True),
+    sa.Column('fuel_cost', sa.Integer(), nullable=True),
+    sa.Column('actual_miles', sa.Integer(), nullable=True),
+    sa.Column('litres', sa.Integer(), nullable=True),
+    sa.Column('gallon', sa.Integer(), nullable=True),
+    sa.Column('mpg', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
