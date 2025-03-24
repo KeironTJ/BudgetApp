@@ -56,7 +56,7 @@ class UserRoles(db.Model):
     # Relationships
 
 
-
+## VEHICLES
 # Model for vehicle information
 class VehicleData(db.Model):
     id = db.Column(Integer, primary_key = True)
@@ -106,3 +106,9 @@ class FuelEntryLog(db.Model):
         self.calculateGallon()
         self.mpg = round(self.actual_miles / self.gallon,2) if self.gallon else 0
 
+## MESSAGING
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    content = db.Column(db.String(500), nullable=False)  
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)

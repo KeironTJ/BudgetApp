@@ -15,12 +15,17 @@ login.login_view = 'auth.login'
 
 def create_app(config_class=Config):
     app = Flask(__name__)
-    app.config.from_object(config_class)
-
-    if os.getenv('FLASK_ENV') == 'development':
+    
+    flask_env = os.getenv('FLASK_ENV', 'production')
+    if flask_env == 'development':
         app.config.from_object('config.DevelopmentConfig')
     else:
         app.config.from_object('config.ProductionConfig')
+
+    # Debugging to confirm correct config is loaded
+    print(f"FLASK_ENV: {flask_env}")
+    print(f"Database URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
+
 
     # Debugging to confirm config is loaded
     #print("Config Loaded: ", app.config)
