@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>VIEW VEHICLES</h1>
+
+<div>
+    <h2>Your Vehicles</h2>
+</div>
+
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">User_ID</th>
+              <th scope="col">Vehicle Name</th>
+              <th scope="col">VRN</th>
+              <th scope="col">Make</th>
+              <th scope="col">Model</th>
+              <th scope="col">Fuel Tank Size</th>
+              <th scope="col">Fuel Type</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+
+          <body>
+            {% for vehicle in user_vehicles %}
+                <tr>
+                    <td>{{vehicle.id}}</td>
+                    <td>{{vehicle.user_id}}</td>
+                    <td>{{vehicle.vehicle_nickname}}</td>
+                    <td>{{vehicle.vrn}}</td>
+                    <td>{{vehicle.vehicle_make}}</td>
+                    <td>{{vehicle.vehicle_model}}</td>
+                    <td>{{vehicle.vehicle_fuel_tank_size}}</td>
+                    <td>{{vehicle.vehicle_fuel_type}}</td>
+                    <td>{{vehicle.vehicle_active}}</td>
+                </tr>
+            {% endfor %}
+
+          </body>
+    </table>
+</div>
+
+<div class="container mt-5">
+    <button class="btn btn-secondary" onclick="history.back()">Back</button>
+</div>
+
+{% endblock %}

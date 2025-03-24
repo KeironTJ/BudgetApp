@@ -18,7 +18,7 @@ class AddVehicleDataForm(FlaskForm):
 
 
 class AddFuelDataForm(FlaskForm):
-    vrn = SelectField('VRN', validators=[DataRequired()])  # TODO: Make This a selection field
+    vehicle_nickname = SelectField('VRN', validators=[DataRequired()])  # TODO: Make This a selection field
     entry_date = DateField('Date of Fueling', validators=[DataRequired()])
     fuel_price = DecimalField('Fuel Price', validators=[DataRequired()])
     vehicle_mileage = IntegerField('Mileage', validators=[DataRequired()])

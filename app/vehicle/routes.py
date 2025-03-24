@@ -11,10 +11,17 @@ from decimal import Decimal
 @login_required
 def vehicle_home():
 
-    user_vehicles = db.session.query(VehicleData)
-
     return render_template("vehicle/vehicle_home.html", 
-                           title="Vehicle Home",
+                           title="Vehicle Home")
+
+@bp.route('/vehicle_view_vehicle', methods=['GET', 'POST'])
+@login_required
+def vehicle_view_vehicle():
+
+    user_vehicles = db.session.query(VehicleData).filter_by(user_id=current_user.id).all()
+
+    return render_template("vehicle/vehicle_view_vehicle.html", 
+                           title="View Vehicle",
                            user_vehicles = user_vehicles)
 
 
@@ -55,7 +62,7 @@ def fuel_log_add_entry():
 
     # List for SelectField to vrn choices
     vehicles = VehicleData.query.filter_by(user_id=current_user_id).all()
-    add_fuel_data_form.vrn.choices = [(vehicle.vrn, vehicle.vrn) for vehicle in vehicles]
+    add_fuel_data_form.vehicle_nickname.choices = [(vehicle.vehicle_nickname, vehicle.vehicle_nickname) for vehicle in vehicles]
 
 
     if request.method == 'POST' and add_fuel_data_form.validate():

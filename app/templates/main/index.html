@@ -4,33 +4,9 @@
 
 <div class="container text-center mt-5">
 
-    <h1 class="mb-4">Welcome to Your Personal Finance Manager!</h1>
+    <h1 class="mb-4">Welcome to the Jones HQ Dashboard!</h1>
 
-    <div class = "container">
-        <h2>Motor: </h2>
-        <div class="row">
-            <div class="col-md-6 col-lg-3 mb-3">
-                <a href="{{ url_for('vehicle.vehicle_home') }}" class="btn btn-primary custom-button">View Vehicles</a>
-            </div>
-            <div class="col-md-6 col-lg-3 mb-3">
-                <a href="{{ url_for('vehicle.vehicle_add_vehicle') }}" class="btn btn-primary custom-button">Add Vehicle</a>
-            </div>
-            <div class="col-md-6 col-lg-3 mb-3">
-                <a href="{{ url_for('vehicle.fuel_log_add_entry') }}" class="btn btn-primary custom-button">Add Fuel</a>
-            </div>
-            <div class="col-md-6 col-lg-3 mb-3">
-                <a href="{{ url_for('vehicle.fuel_log_view_entries') }}" class="btn btn-primary custom-button">View Fuel Log</a>
-            </div>
-            <div class="col-md-6 col-lg-3 mb-3">
-                <a href="{{ url_for('vehicle.journey_add_entry') }}" class="btn btn-primary custom-button">Add Journey</a>
-            </div>
-            <div class="col-md-6 col-lg-3 mb-3">
-                <a href="{{ url_for('vehicle.journey_view_log') }}" class="btn btn-primary custom-button">View Journey Log</a>
-            </div>
-        </div>
-    </div>
     
-
 </div>
 
 {% endblock %}

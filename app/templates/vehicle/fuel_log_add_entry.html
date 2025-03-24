@@ -7,9 +7,9 @@
 <form action="" method="post">
     {{ add_fuel_data_form.hidden_tag() }}
     <p>
-        {{ add_fuel_data_form.vrn.label }}<br>
-        {{ add_fuel_data_form.vrn }}<br>
-        {% for error in add_fuel_data_form.vrn.errors %}
+        {{ add_fuel_data_form.vehicle_nickname.label }}<br>
+        {{ add_fuel_data_form.vehicle_nickname }}<br>
+        {% for error in add_fuel_data_form.vehicle_nickname.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
     </p>
