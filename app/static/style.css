@@ -9,3 +9,84 @@
     justify-content: center;
     text-align: center;
 }
+
+#messageBoardPage {
+    background: linear-gradient(to bottom, #a8e6cf, #dcedc1);
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+#messageBoardPage .message {
+    position: relative;
+    padding: 15px;
+    background: #ffcc5c;
+    border-radius: 15px;
+    margin: 10px 0;
+}
+
+#messageBoardPage button {
+    background-color: #ff6f69 !important;
+    color: white !important;
+    font-size: 1.2em;
+}
+
+#messageBoardPage button:hover {
+    background-color: #ff857f !important;
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Pagination Container */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: #ffcc5c; /* Sunny yellow to match the message bubbles */
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+/* Buttons */
+.pagination a, .pagination span {
+    display: inline-block;
+    padding: 10px 15px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 1.2em;
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+.pagination a {
+    background: #ff6f69; /* Vibrant red-orange */
+    color: white;
+    font-weight: bold;
+}
+
+.pagination a:hover {
+    background: #ff857f; /* Slightly lighter shade */
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.pagination span {
+    background: #ffef96; /* Light yellow */
+    color: #333; /* Dark text */
+    font-weight: bold;
+    cursor: default;
+}
+
+/* Disabled Buttons */
+.pagination a[disabled], .pagination a.disabled {
+    background: #ddd; /* Gray for disabled state */
+    color: #aaa;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pagination span.bubble {
+    animation: bounce 1.5s infinite;
+}
+
