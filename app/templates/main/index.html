@@ -1,61 +1,160 @@
 {% extends "base.html" %}
-
 {% block content %}
 
+<!-- JavaScript Section -->
+<script>
+    function setDeleteAction(actionUrl) {
+        const form = document.getElementById('deleteMessageForm');
+        form.action = actionUrl;
+    }
+    
+    function sendMessage() {
+        const formData = new FormData(document.getElementById('messageForm'));
+        fetch('{{ url_for("main.index") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Update the message list and pagination
+            document.getElementById('messagesDisplay').innerHTML = html;
+            document.getElementById('messageForm').reset(); // Clear the form
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    function deleteMessage(actionUrl) {
+        fetch(actionUrl, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Update the message list and pagination
+            document.getElementById('messagesDisplay').innerHTML = html;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Handle pagination click
+        document.body.addEventListener("click", function (event) {
+            if (event.target.classList.contains("pagination-link")) {
+                event.preventDefault(); // Prevent default link behavior
+                const page = event.target.getAttribute("data-page");
+
+                // Fetch the new content
+                fetch(`{{ url_for('main.index') }}?page=${page}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest' // Signal this is an AJAX request
+                    }
+                })
+                    .then(response => response.text())
+                    .then(html => {
+                        // Update the message display dynamically
+                        document.getElementById("messagesDisplay").innerHTML = html;
+                    })
+                    .catch(error => console.error("Pagination error:", error));
+            }
+        });
+    });
+</script>
+
+<!-- Header Section -->
 <div class="container text-center mt-5">
-
     <h1>Welcome to the Jones HQ Dashboard!</h1>
-
 </div>
 
-<div class="container text-center mt-5 " id="messageBoardPage">
+<!-- Message Board Section -->
+<div id="messageBoardPage" class="container text-center mt-5">
     <h1>🌈 Message Board</h1>
+    
     <!-- Message Form -->
-    <form method="POST" action="{{ url_for('main.index') }}">
-        {{ form.hidden_tag() }}
-        {{ form.content(class="form-control", placeholder="🖍️ Write your message here...", rows=3) }}
-        <button type="submit" class="btn btn-primary mt-3">📝 Send</button>
-    </form>
-    <!-- Display Messages -->
-    <div id="messagesDisplay" class="mt-4">
+    <div id="messageFormContainer" class="mb-4">
+        <form id="messageForm">
+            {{ form.hidden_tag() }}
+            {{ form.content(class="form-control", placeholder="🖍️ Write your message here...", rows=3) }}
+            <button type="button" class="btn btn-primary mt-3" onclick="sendMessage()">📝 Send</button>
+        </form>
+    </div>
+    
+    <!-- Messages Display -->
+    <div id="messagesDisplay">
         {% for message in messages %}
             <div class="message">
                 <span>👤</span> <strong>{{ message.user.username }}:</strong>
                 {{ message.content }}
                 <small class="text-muted">({{ message.timestamp.strftime("%d-%m-%Y @ %H:%M:%S") }})</small>
+    
+                {% if message.user.id == current_user.id or current_user.is_admin() %}
+                    <button type="button" class="btn btn-danger btn-sm" onclick="deleteMessage('{{ url_for('main.delete_message', message_id=message.id) }}')">❌ Delete</button>
+                {% endif %}
             </div>
         {% else %}
             <p>No messages yet. Be the first to post!</p>
         {% endfor %}
+    
+        <!-- Render Pagination for Initial Load -->
+        <div class="container text-center mt-4">
+            <nav>
+                <ul class="pagination justify-content-center">
+                    {% if pagination.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('main.index', page=pagination.prev_num) }}">⬅️ Previous</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">⬅️ Previous</span>
+                        </li>
+                    {% endif %}
+                
+                    {% for p in range(1, pagination.pages + 1) %}
+                        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('main.index', page=p) }}">{{ p }}</a>
+                        </li>
+                    {% endfor %}
+                
+                    {% if pagination.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('main.index', page=pagination.next_num) }}">➡️ Next</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">➡️ Next</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>  
+    
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this message? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteMessageForm" method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
-
-
-
-<div class="pagination mt-4" id="messageBoardPage">
-    <!-- Previous Page -->
-    {% if pagination.has_prev %}
-        <a href="{{ url_for('main.index', page=pagination.prev_num) }}" class="btn btn-sm">⬅️ Previous</a>
-    {% else %}
-        <a class="btn btn-sm disabled">⬅️ Previous</a>
-    {% endif %}
-
-    <!-- Current Page Info -->
-    <span class="bubble">Page {{ pagination.page }} of {{ pagination.pages }}</span>
-
-    <!-- Page Numbers -->
-    {% for p in range(1, pagination.pages + 1) %}
-        <a href="{{ url_for('main.index', page=p) }}" class="bubble">{{ p }}</a>
-    {% endfor %}
-
-    <!-- Next Page -->
-    {% if pagination.has_next %}
-        <a href="{{ url_for('main.index', page=pagination.next_num) }}" class="btn btn-sm">➡️ Next</a>
-    {% else %}
-        <a class="btn btn-sm disabled">➡️ Next</a>
-    {% endif %}
-</div>
-
-
 
 {% endblock %}
