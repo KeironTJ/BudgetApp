@@ -65,6 +65,19 @@
     });
 </script>
 
+<!-- Websocket -->
+<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const socket = io("/main", { transports: ["websocket"] });
+
+        socket.on("connect", function() {
+            console.log("WebSocket connected successfully!");
+        });
+    });                 
+</script>
+
 <!-- Header Section -->
 <div class="container text-center mt-5">
     <h1>Welcome to the Jones HQ Dashboard!</h1>

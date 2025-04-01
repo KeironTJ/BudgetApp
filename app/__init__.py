@@ -5,12 +5,14 @@ from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager 
+from flask_socketio import SocketIO
 
 
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
 login.login_view = 'auth.login'
+socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
 
 
 def create_app(config_class=Config):
@@ -27,13 +29,10 @@ def create_app(config_class=Config):
     print(f"Database URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
 
 
-    # Debugging to confirm config is loaded
-    #print("Config Loaded: ", app.config)
-
-
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
+    socketio.init_app(app)
 
 
     from app.auth import bp as auth_bp
@@ -51,3 +50,4 @@ def create_app(config_class=Config):
     return app
     
 from app import models
+from app.sockets import socketio

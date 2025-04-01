@@ -1,13 +1,18 @@
 import os
-from app import create_app
+import eventlet.wsgi
+from app import create_app, socketio
 from dotenv import load_dotenv
 
-load_dotenv()  # Load the .flaskenv file
+load_dotenv()
 app = create_app()
 
 if __name__ == '__main__':
+    print("FLASK_ENV:", os.getenv("FLASK_ENV"))
+
     if os.getenv('FLASK_ENV') == 'development':
-        app.run()
+        print("NOW IN DEVELOPMENT")
+        socketio.run(app, debug=True, log_output=True, allow_unsafe_werkzeug=True)  # Uses Flask-SocketIO’s built-in support for Eventlet
+        
     else:
-        # Add any production-specific settings, if needed
-        app.run()
+        print("NOW IN PRODUCTION")
+        eventlet.wsgi.server(eventlet.listen(('0.0.0.0', 5000)), app)  # Uses Eventlet’s server directly in production

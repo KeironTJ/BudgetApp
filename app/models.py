@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String
+from sqlalchemy import Integer, String, func
 from datetime import datetime, timezone
 import sqlalchemy.orm as so 
 from flask_login import UserMixin 
@@ -110,6 +110,6 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Foreign key to User table
     content = db.Column(db.String(500), nullable=False)  
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=func.now(), nullable=False)
 
     user = db.relationship('User', backref='messages', lazy=True)  # Relationship to fetch User data

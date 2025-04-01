@@ -4,7 +4,8 @@ from app import db
 from app.models import Message
 from app.main.forms import MessageForm
 from flask_login import login_required, current_user
-
+from flask_socketio import emit
+from app import db, socketio
 
 
 
