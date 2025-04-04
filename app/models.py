@@ -111,5 +111,6 @@ class Message(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Foreign key to User table
     content = db.Column(db.String(500), nullable=False)  
     timestamp = db.Column(db.DateTime, default=func.now(), nullable=False)
+    deleted = db.Column(db.Boolean, default=False)  # 🔹 New field
 
     user = db.relationship('User', backref='messages', lazy=True)  # Relationship to fetch User data

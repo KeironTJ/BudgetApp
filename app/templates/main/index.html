@@ -1,151 +1,261 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!-- JavaScript Section -->
+<!-- Websocket -->
+<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+
+<input type="hidden" id="currentUserId" value="{{ current_user.id }}">
+<input type="hidden" id="isAdmin" value="{{ 'true' if current_user.is_admin() else 'false' }}">
+
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let messageInput = document.querySelector("#messageForm textarea");
+        if (messageInput) {
+            messageInput.focus(); // 🔹 Autofocus on load
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const messageInput = document.getElementById("messageForm").elements["content"];
+
+        messageInput.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" && !event.shiftKey) { // 🔹 Shift + Enter adds a new line, Enter sends
+                event.preventDefault(); // 🔹 Prevents line breaks
+                sendMessage(); // 🔹 Calls `sendMessage()`
+            }
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Define WebSocket before using it elsewhere
+        window.socket = io({ transports: ["websocket"] });
+
+        socket.on("connect", function () {
+            console.log("WebSocket connected successfully!");
+        });
+
+        socket.on("message_received", function (msg) {
+            const currentUserId = document.getElementById("currentUserId").value;
+
+            let newMsg = document.createElement("div");
+            newMsg.classList.add("message", msg.user_id == currentUserId ? "sent" : "received");
+            newMsg.dataset.id = msg.id;
+
+            const deleteButton = (msg.user_id == currentUserId || document.getElementById("isAdmin").value === "true") 
+                ? `<button type="button" class="btn btn-danger btn-sm" onclick="deleteMessage('/delete_message/${msg.id}')">Delete</button>` 
+                : "";
+
+            newMsg.innerHTML = `
+                <strong>${msg.username}:</strong> ${msg.content}  
+                <small class="text-muted">(${msg.timestamp})</small>  
+                ${deleteButton}
+            `;
+
+            const chatBox = document.getElementById("messagesDisplay");
+
+            // Check if user is at the bottom before auto-scrolling
+            const isAtBottom = chatBox.scrollHeight - chatBox.scrollTop <= chatBox.clientHeight + 50;
+
+            chatBox.appendChild(newMsg);
+
+            if (isAtBottom) {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        });
+
+        socket.on("message_deleted", function (data) {
+            let deletedMsg = document.querySelector(`.message[data-id="${data.message_id}"]`);
+            if (deletedMsg) {
+                let timestampElement = deletedMsg.querySelector("small"); // 🔹 Capture existing timestamp
+
+                if (!timestampElement) {
+                    timestampElement = document.createElement("small");
+                    timestampElement.classList.add("text-muted");
+                    timestampElement.innerHTML = `(${data.timestamp})`;
+                    deletedMsg.appendChild(timestampElement);
+                }
+
+                let textContainer = deletedMsg.querySelector("strong"); // 🔹 Target only the message text
+                if (textContainer) {
+                    textContainer.innerHTML = `<i>🚫 Message deleted</i>`;  // 🔹 Replace only message text
+                }
+
+            }
+        });     
+
+        socket.on("error", function (error) {
+            console.error("WebSocket error:", error);
+        });
+
+        socket.on("disconnect", function () {
+            console.log("WebSocket disconnected. Attempting to reconnect...");
+            setTimeout(() => { socket.connect(); }, 5000); // Reconnect after 5 seconds
+        }); 
+    });
+</script>
+
+
+<!-- JavaScript Section -->
+
+<script>
+
     function setDeleteAction(actionUrl) {
         const form = document.getElementById('deleteMessageForm');
         form.action = actionUrl;
     }
-    
+
     function sendMessage() {
-        const formData = new FormData(document.getElementById('messageForm'));
+        const messageContent = document.getElementById("messageForm").elements["content"].value;
+        const userId = document.getElementById("currentUserId").value;
+
+        if (!messageContent.trim()) return;
+
+        // Send WebSocket message first
+        socket.emit("new_message", { user_id: userId, content: messageContent });
+
+        // Send message via AJAX but **DO NOT APPEND** (WebSocket will handle display)
+        const formData = new FormData(document.getElementById("messageForm"));
         fetch('{{ url_for("main.index") }}', {
             method: 'POST',
             body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status !== "success") {
+                console.error("Failed to send message.");
             }
+            document.getElementById("messageForm").reset();
         })
-        .then(response => response.text())
-        .then(html => {
-            // Update the message list and pagination
-            document.getElementById('messagesDisplay').innerHTML = html;
-            document.getElementById('messageForm').reset(); // Clear the form
-        })
-        .catch(error => console.error('Error:', error));
+        .catch(error => console.error("Error sending message:", error));
+        
     }
-    
-    function deleteMessage(actionUrl) {
-        fetch(actionUrl, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
+        
+    function deleteMessage(deleteUrl) {
+        fetch(deleteUrl, {
+            method: "POST",
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status !== "success") {
+                console.error("Failed to delete message.");
+                return;
+            }
+
+            let deletedMsg = document.querySelector(`.message[data-id="${data.message_id}"]`);
+            if (deletedMsg) {
+                let timestampElement = deletedMsg.querySelector("small"); 
+                let timestampHTML = timestampElement ? timestampElement.outerHTML : `<small class="text-muted">(${data.timestamp})</small>`;
+
+                let textContainer = deletedMsg.querySelector("strong");
+                if (textContainer) {
+                    textContainer.innerHTML = `<i>🚫 Message deleted</i>`;
+                } else {
+                    deletedMsg.innerHTML = `<i>🚫 Message deleted</i> ${timestampHTML}`;
+                }
+
+                let deleteButton = deletedMsg.querySelector("button"); // 🔹 Find delete button
+                if (deleteButton) {
+                    deleteButton.remove(); // 🔹 Remove the delete button
+                }
             }
         })
-        .then(response => response.text())
-        .then(html => {
-            // Update the message list and pagination
-            document.getElementById('messagesDisplay').innerHTML = html;
-        })
-        .catch(error => console.error('Error:', error));
+        .catch(error => console.error("Error deleting message:", error));
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-        // Handle pagination click
-        document.body.addEventListener("click", function (event) {
-            if (event.target.classList.contains("pagination-link")) {
-                event.preventDefault(); // Prevent default link behavior
-                const page = event.target.getAttribute("data-page");
+        const chatBox = document.getElementById("messagesDisplay");
 
-                // Fetch the new content
-                fetch(`{{ url_for('main.index') }}?page=${page}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest' // Signal this is an AJAX request
+        chatBox.addEventListener("scroll", function () {
+            if (chatBox.scrollTop <= 10) { // Near the top
+                loadMoreMessages();
+            }
+        });
+        
+
+        function loadMoreMessages() {
+            const firstMessage = document.querySelector(".message:first-child");
+
+            if (!firstMessage) return;
+
+            const firstMessageId = firstMessage.dataset.id;
+            if (!firstMessageId) {
+                console.error("Invalid firstMessageId:", firstMessageId);
+                return;
+            }
+
+            fetch(`/load_messages?last_message_id=${firstMessageId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error("Error loading messages:", data.error);
+                        return;
                     }
+
+                    const chatBox = document.getElementById("messagesDisplay");
+                    const previousHeight = chatBox.scrollHeight;
+
+                    data.forEach(msg => {
+                        let newMsg = document.createElement("div");
+                        newMsg.classList.add("message");
+                        newMsg.dataset.id = msg.id;
+                        newMsg.innerHTML = `<strong>${msg.username}:</strong> ${msg.content}`;
+                        chatBox.prepend(newMsg); // Prepend normally
+                    });
+
+                    chatBox.scrollTop = chatBox.scrollHeight - previousHeight; // Maintain scroll position
                 })
-                    .then(response => response.text())
-                    .then(html => {
-                        // Update the message display dynamically
-                        document.getElementById("messagesDisplay").innerHTML = html;
-                    })
-                    .catch(error => console.error("Pagination error:", error));
-            }
+                .catch(error => console.error("Failed to load messages:", error));
+        }
+
+            // Auto-scroll to the bottom when the page loads
+            chatBox.scrollTop = chatBox.scrollHeight;
         });
-    });
 </script>
 
-<!-- Websocket -->
-<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const socket = io("/main", { transports: ["websocket"] });
-
-        socket.on("connect", function() {
-            console.log("WebSocket connected successfully!");
-        });
-    });                 
-</script>
 
 <!-- Header Section -->
 <div class="container text-center mt-5">
     <h1>Welcome to the Jones HQ Dashboard!</h1>
 </div>
 
+
 <!-- Message Board Section -->
 <div id="messageBoardPage" class="container text-center mt-5">
-    <h1>🌈 Message Board</h1>
-    
-    <!-- Message Form -->
-    <div id="messageFormContainer" class="mb-4">
-        <form id="messageForm">
-            {{ form.hidden_tag() }}
-            {{ form.content(class="form-control", placeholder="🖍️ Write your message here...", rows=3) }}
-            <button type="button" class="btn btn-primary mt-3" onclick="sendMessage()">📝 Send</button>
-        </form>
-    </div>
-    
+    <h1>Message Board</h1>
+
     <!-- Messages Display -->
     <div id="messagesDisplay">
         {% for message in messages %}
-            <div class="message">
-                <span>👤</span> <strong>{{ message.user.username }}:</strong>
-                {{ message.content }}
+            <div class="message {% if message.user_id == current_user.id %} sent {% else %} received {% endif %}" data-id="{{ message.id }}">
+                {% if message.deleted %}
+                    <i>🚫 Message deleted</i>  <!-- 🔹 Display deletion notice -->
+                {% else %}
+                    <strong>{{ message.user.username }}:</strong> {{ message.content }}
+                {% endif %}
                 <small class="text-muted">({{ message.timestamp.strftime("%d-%m-%Y @ %H:%M:%S") }})</small>
-    
-                {% if message.user.id == current_user.id or current_user.is_admin() %}
-                    <button type="button" class="btn btn-danger btn-sm" onclick="deleteMessage('{{ url_for('main.delete_message', message_id=message.id) }}')">❌ Delete</button>
+
+                {% if not message.deleted and (message.user_id == current_user.id or current_user.is_admin()) %}
+                    <button type="button" class="btn btn-danger btn-sm" onclick="deleteMessage('/delete_message/{{ message.id }}')">Delete</button>
                 {% endif %}
             </div>
-        {% else %}
-            <p>No messages yet. Be the first to post!</p>
         {% endfor %}
-    
-        <!-- Render Pagination for Initial Load -->
-        <div class="container text-center mt-4">
-            <nav>
-                <ul class="pagination justify-content-center">
-                    {% if pagination.has_prev %}
-                        <li class="page-item">
-                            <a class="page-link" href="{{ url_for('main.index', page=pagination.prev_num) }}">⬅️ Previous</a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link">⬅️ Previous</span>
-                        </li>
-                    {% endif %}
-                
-                    {% for p in range(1, pagination.pages + 1) %}
-                        <li class="page-item {% if p == pagination.page %}active{% endif %}">
-                            <a class="page-link" href="{{ url_for('main.index', page=p) }}">{{ p }}</a>
-                        </li>
-                    {% endfor %}
-                
-                    {% if pagination.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="{{ url_for('main.index', page=pagination.next_num) }}">➡️ Next</a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link">➡️ Next</span>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
     </div>
-</div>  
+
+    <!--Send Message Form -->
+    <div id="messageFormContainer" class="mb-4">
+        <form id="messageForm" class="d-flex">
+            {{ form.hidden_tag() }}
+            {{ form.content(class="form-control flex-grow-1", placeholder="Write your message here...", rows=3) }}
+            <button type="button" class="btn btn-primary" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
     
 
 <!-- Delete Confirmation Modal -->

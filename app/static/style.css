@@ -10,83 +10,57 @@
     text-align: center;
 }
 
-#messageBoardPage {
-    background: linear-gradient(to bottom, #a8e6cf, #dcedc1);
-    font-family: 'Comic Sans MS', cursive, sans-serif;
+#messageForm textarea {
+    height: 3em;
+    overflow-y: auto; 
+    resize: none; 
 }
 
-#messageBoardPage .message {
-    position: relative;
-    padding: 15px;
-    background: #ffcc5c;
-    border-radius: 15px;
-    margin: 10px 0;
-}
 
-#messageBoardPage button {
-    background-color: #ff6f69 !important;
-    color: white !important;
-    font-size: 1.2em;
-}
-
-#messageBoardPage button:hover {
-    background-color: #ff857f !important;
-    transform: scale(1.1);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Pagination Container */
-.pagination {
+#messageForm button {
+    height: 3em; 
+    padding: 0 16px; 
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+}
+
+#messagesDisplay {
+    height: 400px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
     gap: 10px;
+    max-height: 500px;
     padding: 10px;
-    background: #ffcc5c; /* Sunny yellow to match the message bubbles */
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background-color: #f8f9fa;
+    border-radius: 5px;
 }
 
-/* Buttons */
-.pagination a, .pagination span {
-    display: inline-block;
-    padding: 10px 15px;
+.message {
+    max-width: 70%;
+    padding: 10px;
     border-radius: 10px;
-    text-decoration: none;
-    font-size: 1.2em;
-    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.pagination a {
-    background: #ff6f69; /* Vibrant red-orange */
+.sent {
+    align-self: flex-end;
+    background-color: #007bff;
     color: white;
-    font-weight: bold;
+    text-align: right;
 }
 
-.pagination a:hover {
-    background: #ff857f; /* Slightly lighter shade */
-    transform: scale(1.1);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+.received {
+    align-self: flex-start;
+    background-color: #e9ecef;
+    color: black;
+    text-align: left;
 }
 
-.pagination span {
-    background: #ffef96; /* Light yellow */
-    color: #333; /* Dark text */
-    font-weight: bold;
-    cursor: default;
-}
-
-/* Disabled Buttons */
-.pagination a[disabled], .pagination a.disabled {
-    background: #ddd; /* Gray for disabled state */
-    color: #aaa;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
-.pagination span.bubble {
-    animation: bounce 1.5s infinite;
+.message small {
+    display: inline-block !important; /* 🔹 Forces visibility */
+    color: #888;
+    font-size: 12px;
 }
 
