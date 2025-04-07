@@ -1,9 +1,9 @@
 .custom-button {
-    padding: 40px; /* Adjust padding for a square appearance */
-    font-size: 1.2rem; /* Adjust font size if necessary */
-    border-radius: 0; /* Remove rounded corners for a square look */
-    width: 100%; /* Ensure buttons take full width of their container */
-    height: 100px; /* Set a fixed height for consistency */
+    padding: 40px; 
+    font-size: 1.2rem; 
+    border-radius: 0; 
+    width: 100%; 
+    height: 100px; 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -17,50 +17,60 @@
 }
 
 
-#messageForm button {
-    height: 3em; 
-    padding: 0 16px; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 #messagesDisplay {
-    height: 400px;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    max-height: 500px;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: 5px;
+    max-height: 400px;
+    overflow-y: auto; 
+}
+
+/* Align sent messages to the right */
+.sent-container {
+    justify-content: flex-end; 
+    align-self: flex-end;
+}
+
+/* Align received messages to the left */
+.received-container {
+    justify-content: flex-start;
+    align-self: flex-start;
+}
+
+.message-container {
+    display: flex;
+    align-items: stretch; 
+    justify-content: space-between; 
+    gap: 10px 5px;
+    max-width: 75%;
 }
 
 .message {
-    max-width: 70%;
+    flex-grow: 1;
     padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background: #f1f1f1;
+    text-align: left;
+    display: flex;
+    flex-direction: column; 
 }
 
 .sent {
-    align-self: flex-end;
-    background-color: #007bff;
+    background: #007bff;
     color: white;
-    text-align: right;
 }
 
 .received {
-    align-self: flex-start;
-    background-color: #e9ecef;
-    color: black;
-    text-align: left;
+    background: #e5e5e5;
 }
 
-.message small {
-    display: inline-block !important; /* 🔹 Forces visibility */
-    color: #888;
-    font-size: 12px;
+.delete-btn {
+    height: auto;
+    border-radius: 8px;
+    min-height: 100%;
+    align-self: stretch; 
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
 }
-

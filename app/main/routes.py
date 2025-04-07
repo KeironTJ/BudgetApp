@@ -31,13 +31,11 @@ def load_messages():
 
     messages = Message.query.filter(Message.id < last_message_id).order_by(Message.timestamp.asc()).limit(10).all()
 
-    print(f"Loading messages before ID: {last_message_id}")  # 🔹 Debug lazy loading messages
-
     return jsonify([{ 
         'id': msg.id, 
-        'deleted': msg.deleted,  # 🔹 Confirm whether the message is marked as deleted
+        'deleted': msg.deleted,
         'username': msg.user.username, 
-        'content': msg.content if not msg.deleted else "🚫 Message deleted",
+        'content': msg.content if not msg.deleted else None, 
         'timestamp': msg.timestamp.strftime("%Y-%m-%d %H:%M:%S")
     } for msg in messages])
 
@@ -47,15 +45,18 @@ def load_messages():
 def delete_message(message_id):
     message = Message.query.get_or_404(message_id)
 
+    # Ensure only the message owner or admin can delete
     if message.user_id != current_user.id and not current_user.is_admin():
         return jsonify({'error': 'Unauthorized'}), 403
 
     message.deleted = True
     db.session.commit()
-    
+
+    # Emit WebSocket event ONLY after successful deletion
     socketio.emit('message_deleted', {
         'message_id': message.id,
+        'username': message.user.username,
         'timestamp': message.timestamp.strftime("%d-%m-%Y %H:%M:%S")
-    }, to=None)
+    })
 
-    return jsonify({'status': 'success', 'message_id': message.id})
+    return jsonify({'status': 'success'})

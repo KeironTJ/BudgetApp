@@ -10,7 +10,7 @@ def handle_connect():
     
 @socketio.on('new_message')
 def handle_new_message(data):
-    user = User.query.get(data["user_id"])  # Fetch the user
+    user = User.query.get(data["user_id"])  
     if not user:
         return  # Prevent issues with missing usernames
 
@@ -20,21 +20,32 @@ def handle_new_message(data):
 
     emit('message_received', {
         'id': message.id,
-        'user_id': message.user_id,  # Ensure this is sent
+        'user_id': message.user_id, 
         'username': user.username,
         'content': message.content,
-        'timestamp': message.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+        'timestamp': message.timestamp.strftime("%d-%m-%Y %H:%M:%S")
     }, broadcast=True)
 
-@socketio.on('delete_message')
-def handle_delete_message(message_id):
+@socketio.on("delete_message")
+def handle_delete_message(data):
+    print(f"Received WebSocket delete request: {data}")  # Debugging log
+
+    message_id = data.get("message_id")
+    if not message_id:
+        print("Error: No message_id received in WebSocket event")  # Debug log
+        return
+
     message = Message.query.get(message_id)
-    if message:
-        message.deleted = True
-        db.session.commit()
+    if not message:
+        print(f"Error: Message ID {message_id} not found in DB!")  # Debug log
+        return
 
-        emit('message_deleted', {
-            'message_id': message.id,
-            'timestamp': message.timestamp.strftime("%d-%m-%Y %H:%M:%S")  # 🔹 Ensure WebSocket sends timestamp
-        }, broadcast=True)
+    message.deleted = True
+    db.session.commit()
 
+    print(f"Emitting WebSocket event for message_id: {message_id}")  # Debug log
+    emit("message_deleted", {
+        "message_id": message_id,
+        "timestamp": message.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+        "username": message.user.username,
+    }, broadcast=True)

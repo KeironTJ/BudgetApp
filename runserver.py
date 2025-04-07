@@ -3,12 +3,13 @@ import eventlet.wsgi
 from app import create_app, socketio
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(".flaskenv") # FOR DEVELOPMENT ONLY
 
 app = create_app()
 
 if __name__ == '__main__':
     print("FLASK_ENV:", os.getenv("FLASK_ENV"))
+
 
     if os.getenv('FLASK_ENV') == 'development':
         print("NOW IN DEVELOPMENT")
