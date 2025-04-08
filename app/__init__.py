@@ -32,7 +32,7 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
-    socketio.init_app(app)
+    socketio.init_app(app, async_mode="eventlet")
 
 
     from app.auth import bp as auth_bp

@@ -1,3 +1,6 @@
+import eventlet
+eventlet.monkey_patch()
+
 import os
 import eventlet.wsgi
 from app import create_app, socketio
