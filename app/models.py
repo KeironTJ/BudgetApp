@@ -112,5 +112,18 @@ class Message(db.Model):
     content = db.Column(db.String(500), nullable=False)  
     timestamp = db.Column(db.DateTime, default=func.now(), nullable=False)
     deleted = db.Column(db.Boolean, default=False) 
-
+    
+    # Relationships
     user = db.relationship('User', backref='messages', lazy=True)  # Relationship to fetch User data
+
+
+## MEAL PLANNING    
+class MealPlan(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # KEEP AS REFERENCE - MAY LINK TO A FAMILY ID IN THE FUTURE
+    meal_date = db.Column(db.DateTime, default=func.now(), nullable=False)
+    meal_description = db.Column(db.String(500), nullable=False) 
+    meal_source = db.Column(db.String(500), nullable=False) 
+
+    # Relationships
+    user = db.relationship('User', backref='meal_plans', lazy=True) 

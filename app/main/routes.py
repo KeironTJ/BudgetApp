@@ -1,11 +1,12 @@
 from app.main import bp
 from flask import render_template, request, redirect, url_for, flash, jsonify
-from app import db
-from app.models import Message
+from app.models import Message, MealPlan
+from app.main.forms import AddMealForm
 from app.main.forms import MessageForm
 from flask_login import login_required, current_user
 from flask_socketio import emit
 from app import db, socketio
+from datetime import datetime, timedelta
 
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
@@ -14,7 +15,7 @@ def index():
     form = MessageForm()
 
     if form.validate_on_submit() and form.content.data.strip():
-        # 🔹 DO NOT commit here—WebSocket already handles saving the message
+
         return jsonify({'status': 'success'})
 
     # Load full message history **only on page load** (not during message sending)
@@ -60,3 +61,61 @@ def delete_message(message_id):
     })
 
     return jsonify({'status': 'success'})
+
+
+## Meal Planner Routes
+@bp.route('/mealplanner', methods=['GET', 'POST'])
+@login_required
+def mealplanner():
+    # Get today's date
+    today = datetime.today()
+    
+    # Calculate the Monday of the current week
+    start_of_week = today - timedelta(days=today.weekday())  # Monday is weekday 0
+
+    # Filter meals including Monday
+    mealplan = MealPlan.query.filter_by(user_id=current_user.id) \
+                         .filter(MealPlan.meal_date >= start_of_week.date()) \
+                         .order_by(MealPlan.meal_date.asc()) \
+                         .all()
+    
+    form = AddMealForm()
+    if form.validate_on_submit():
+        meal = MealPlan(
+            user_id=current_user.id,
+            meal_date=form.meal_date.data,
+            meal_description=form.meal_description.data,
+            meal_source=form.meal_source.data
+        )
+        db.session.add(meal)
+        db.session.commit()
+        flash('Meal added successfully!', 'success')
+        return redirect(url_for('main.mealplanner'))
+    elif request.method == 'POST':
+        flash('Please fill in all fields.', 'danger')
+
+    return render_template('main/mealplanner.html',
+                           title='Meal Planner',
+                           mealplan=mealplan,
+                           form=form)
+
+@bp.route('/edit_meal/<int:meal_id>', methods=['GET', 'POST'])
+def edit_meal(meal_id):
+    meal = MealPlan.query.get_or_404(meal_id)
+    form = AddMealForm()
+    if form.validate_on_submit():
+        meal.meal_date = form.meal_date.data
+        meal.meal_description = form.meal_description.data
+        meal.meal_source = form.meal_source.data
+        db.session.commit()
+        flash("Meal updated successfully!", "success")
+    return redirect(url_for('main.mealplanner'))
+
+
+@bp.route('/delete_meal/<int:meal_id>', methods=['POST'])
+def delete_meal(meal_id):
+    meal = MealPlan.query.get_or_404(meal_id)
+    db.session.delete(meal)
+    db.session.commit()
+    flash("Meal deleted successfully!", "success")
+    return redirect(url_for('main.mealplanner'))
