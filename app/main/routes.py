@@ -74,10 +74,10 @@ def mealplanner():
     start_of_week = today - timedelta(days=today.weekday())  # Monday is weekday 0
 
     # Filter meals including Monday
-    mealplan = MealPlan.query.filter_by(user_id=current_user.id) \
-                         .filter(MealPlan.meal_date >= start_of_week.date()) \
+    mealplan = MealPlan.query.filter(MealPlan.meal_date >= start_of_week.date()) \
                          .order_by(MealPlan.meal_date.asc()) \
                          .all()
+
     
     form = AddMealForm()
     if form.validate_on_submit():
