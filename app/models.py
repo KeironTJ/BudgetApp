@@ -33,6 +33,11 @@ class User(UserMixin, db.Model):
     def is_admin(self):
         return 'admin' in [role.name for role in self.roles]
     
+    def is_family_leader(self):
+        return 'family_leader' in [role.name for role in self.roles]
+    
+    def is_family_member(self):
+        return 'family_member' in [role.name for role in self.roles]
 
 # Model for the Role table
 class Role(db.Model):
@@ -50,7 +55,7 @@ class Role(db.Model):
 class UserRoles(db.Model):
     id = db.Column(Integer, primary_key=True)
     user_id = db.Column(Integer, db.ForeignKey('user.id'))
-    role_id = db.Column(Integer, db.ForeignKey('role.id'))
+    role_id = db.Column(Integer, db.ForeignKey('role.id'), default=2)
 
     # Relationships
 

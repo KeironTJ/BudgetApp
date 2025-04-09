@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="customdiv">
+    <h1>Admin - Messages</h1>
+</div>
+
+<div class="customdiv">
+    <h2>View all messages:</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>User ID</th>
+                <th>Content</th>
+                <th>Timestamp</th>
+                <th>Deleted Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for message in messages %}
+                <tr>
+                    <td>{{ message.id }}</td>
+                    <td>{{ message.user_id }}</td>
+                    <td>{{ message.content }}</td>
+                    <td>{{ message.timestamp.strftime("%d-%m-%Y %H:%M:%S") }}</td>
+                    <td>{{ message.deleted_status }}</td>
+                    <td>
+                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editMessageModal{{ message.id }}">
+                            ✏️
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteMessageModal{{ message.id }}">
+                            🗑️
+                        </button>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ url_for('admin.admin_home') }}" class="btn btn-primary">Go back</a>
+
+
+
+
+{% endblock %}

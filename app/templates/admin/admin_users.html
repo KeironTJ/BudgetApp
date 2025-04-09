@@ -54,9 +54,33 @@
         </tbody>
     </table>
 
-    <a href="{{ url_for('admin.admin_home') }}" class="btn btn-primary">Go back</a>
-
 </div>
+
+
+<div class ="customdiv">
+    <h2>View All User Roles</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>User ID</th>
+                <th>Role ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user_role in user_roles %}
+                <tr>
+                    <td>{{ user_role.id }}</td>
+                    <td>{{ user_role.user_id }}</td>
+                    <td>{{ user_role.role_id }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<a href="{{ url_for('admin.admin_home') }}" class="btn btn-primary">Go back</a>
 
 
 

@@ -1,6 +1,6 @@
 from app import db
 from app.auth.forms import LoginForm, RegistrationForm
-from app.models import User
+from app.models import User, UserRoles
 from flask import render_template, redirect, url_for, flash, request 
 from flask_login import current_user, login_user, logout_user 
 import sqlalchemy as sa 
@@ -62,6 +62,12 @@ def register():
 
         #obtain user id
         user = db.session.query(User).filter_by(username=form.username.data).first()
+
+        # Assign the user to the default role (user)
+        user_role = UserRoles(user_id=user.id, role_id=2)
+        db.session.add(user_role)
+        db.session.commit()
+        flash('You have been assigned the default user role.')
 
         return redirect(url_for('main.index'))
     
