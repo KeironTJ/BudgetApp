@@ -1,232 +1,45 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!-- Websocket -->
-<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+<div class="container mt-5">
+    <div class="text-center">
+        <h1>Welcome to the Jones HQ Dashboard!</h1>
+        <p class="lead">Manage your family activities effortlessly.</p>
+    </div>
 
-<input type="hidden" id="currentUserId" value="{{ current_user.id }}">
-<input type="hidden" id="isAdmin" value="{{ 'true' if current_user.is_admin() else 'false' }}">
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const messageInput = document.getElementById("messageForm")?.elements["content"];
-        const chatBox = document.getElementById("messagesDisplay");
-
-        // Autofocus and Enter-to-send functionality
-        if (messageInput) {
-            messageInput.focus();
-            messageInput.addEventListener("keydown", function (event) {
-                if (event.key === "Enter" && !event.shiftKey) {
-                    event.preventDefault();
-                    sendMessage();
-                }
-            });
-        }
-
-        // WebSocket Initialization
-        window.socket = io({ transports: ["websocket"] });
-
-        socket.on("connect", () => console.log("WebSocket connected successfully!"));
-
-        socket.on("message_received", function (msg) {
-            const currentUserId = document.getElementById("currentUserId").value;
-            const chatBox = document.getElementById("messagesDisplay");
-
-            let messageContainer = document.createElement("div");
-            messageContainer.classList.add("message-container", msg.user_id == currentUserId ? "sent-container" : "received-container");
-
-            let messageElement = document.createElement("div");
-            messageElement.classList.add("message", msg.user_id == currentUserId ? "sent" : "received");
-            messageElement.dataset.id = msg.id;
-
-            // Correct timestamp format with @ between date and time
-            const formattedTimestamp = msg.timestamp.replace(" ", " @ ");
-
-            messageElement.innerHTML = `
-                <div class="message-header">
-                    <strong>${msg.username}</strong>
-                </div>
-                <div class="message-body">
-                    ${msg.deleted ? `<i>🚫 Message deleted</i>` : msg.content}
-                </div>
-                <div class="message-footer">
-                    <small class="text-muted">${formattedTimestamp}</small>
-                </div>
-            `;
-
-            // Delete button logic
-            if (msg.user_id == currentUserId || document.getElementById("isAdmin").value === "true") {
-                let deleteButton = document.createElement("button");
-                deleteButton.classList.add("btn", "btn-danger", "btn-sm", "delete-btn");
-                deleteButton.innerHTML = `<i class="fas fa-trash"></i>`;
-                deleteButton.onclick = function () {
-                    deleteMessage(`/delete_message/${msg.id}`);
-                };
-                messageContainer.appendChild(deleteButton);
-            }
-
-            messageContainer.appendChild(messageElement);
-
-            // Auto-scroll logic
-            const isAtBottom = chatBox.scrollHeight - chatBox.scrollTop <= chatBox.clientHeight + 50;
-            chatBox.appendChild(messageContainer);
-            if (isAtBottom) {
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
-        });
-
-        socket.on("message_deleted", function (data) {
-            let deletedMsg = document.querySelector(`.message[data-id="${data.message_id}"]`);
-            
-            if (deletedMsg) {
-                let timestampHTML = deletedMsg.querySelector(".message-footer small")?.outerHTML || `<small class="text-muted">${data.timestamp}</small>`;
-                
-                deletedMsg.innerHTML = `
-                    <div class="message-header">
-                        <strong>${data.username}</strong>
-                    </div>
-                    <div class="message-body">
-                        <i>🚫 Message deleted</i>
-                    </div>
-                    <div class="message-footer">
-                        ${timestampHTML}
-                    </div>
-                `;
-
-                // Remove the delete button within the same message-container
-                deletedMsg.closest(".message-container")?.querySelector(".delete-btn")?.remove();
-            }
-        });
-
-        socket.on("error", (error) => console.error("WebSocket error:", error));
-
-        socket.on("disconnect", () => {
-            console.log("WebSocket disconnected. Attempting to reconnect...");
-            setTimeout(() => socket.connect(), 5000);
-        });
-
-        // Scroll behavior for lazy loading
-        chatBox.addEventListener("scroll", function () {
-            if (chatBox.scrollTop <= 10) loadMoreMessages();
-        });
-
-        function loadMoreMessages() {
-            const firstMessageId = document.querySelector(".message:first-child")?.dataset.id;
-            if (!firstMessageId) return;
-
-            fetch(`/load_messages?last_message_id=${firstMessageId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) return console.error("Error loading messages:", data.error);
-
-                    const previousHeight = chatBox.scrollHeight;
-
-                    data.forEach(msg => {
-                        let newMsg = document.createElement("div");
-                        newMsg.classList.add("message");
-                        newMsg.dataset.id = msg.id;
-                        newMsg.innerHTML = `<strong>${msg.username}:</strong> ${msg.content}`;
-                        chatBox.prepend(newMsg);
-                    });
-
-                    chatBox.scrollTop = chatBox.scrollHeight - previousHeight;
-                })
-                .catch(error => console.error("Failed to load messages:", error));
-        }
-
-        chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll on load
-    });
-
-    function sendMessage() {
-        const messageContent = document.getElementById("messageForm")?.elements["content"].value;
-        const userId = document.getElementById("currentUserId").value;
-
-        if (!messageContent?.trim()) return;
-
-        socket.emit("new_message", { user_id: userId, content: messageContent });
-
-        fetch('{{ url_for("main.index") }}', {
-            method: 'POST',
-            body: new FormData(document.getElementById("messageForm")),
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status !== "success") console.error("Failed to send message.");
-            document.getElementById("messageForm").reset();
-        })
-        .catch(error => console.error("Error sending message:", error));
-    }
-
-    function deleteMessage(deleteUrl) {
-        fetch(deleteUrl, {
-            method: "POST",
-            headers: { "X-Requested-With": "XMLHttpRequest" }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status !== "success") return console.error("Failed to delete message.");
-
-            let deletedMsg = document.querySelector(`.message[data-id="${data.message_id}"]`);
-            if (deletedMsg) {
-                let timestampHTML = deletedMsg.querySelector("small")?.outerHTML || `<small class="text-muted">(${data.timestamp})</small>`;
-                deletedMsg.innerHTML = `<strong>${data.username}:</strong><i>🚫 Message deleted</i> ${timestampHTML}`;
-                deletedMsg.querySelector("button")?.remove();
-            }
-        })
-        .catch(error => console.error("Error deleting message:", error));
-    }
-</script>
-
-
-
-<!-- Header Section -->
-<div class="container text-center mt-5">
-    <h1>Welcome to the Jones HQ Dashboard!</h1>
-</div>
-
-<!-- Message Board Section -->
-<div id="messageBoardPage" class="container text-center mt-5">
-    <h1>Message Board</h1>
-
-    <!-- Messages Display -->
-    <div id="messagesDisplay">
-        {% for message in messages %}
-            <div class="message-container {% if message.user_id == current_user.id %}sent-container{% else %}received-container{% endif %}">
-                {% if not message.deleted and (message.user_id == current_user.id or current_user.is_admin()) %}
-                    <button type="button" class="btn btn-danger btn-sm delete-btn" onclick="deleteMessage('/delete_message/{{ message.id }}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                {% endif %}
-                <div class="message {% if message.user_id == current_user.id %}sent{% else %}received{% endif %}" data-id="{{ message.id }}">
-                    <div class="message-header">
-                        <strong>{{ message.user.username }}</strong>
-                    </div>
-                    <div class="message-body">
-                        {% if message.deleted %}
-                            <i>🚫 Message deleted</i>
-                        {% else %}
-                            {{ message.content }}
-                        {% endif %}
-                    </div>
-                    <div class="message-footer">
-                        <small class="text-muted">{{ message.timestamp.strftime("%d-%m-%Y @ %H:%M:%S") }}</small>
-                    </div>
+    <div class="row mt-4">
+        <!-- Family Chat Card -->
+        <div class="col-md-4">
+            <div class="card shadow-lg">
+                <div class="card-body text-center">
+                    <h5 class="card-title">💬 Family Chat</h5>
+                    <p class="card-text">Connect with family members in real-time.</p>
+                    <a href="{{ url_for('main.familychat') }}" class="btn btn-primary">Go to Chat</a>
                 </div>
             </div>
-        {% endfor %}
-    </div>
-    <br>
+        </div>
 
-    <!-- Send Message Form -->
-    <div id="messageFormContainer" class="mb-4">
-        <form id="messageForm" class="d-flex">
-            {{ form.hidden_tag() }}
-            {{ form.content(class="form-control flex-grow-1", placeholder="Write your message here...", rows=3) }}
-            <button type="button" class="btn btn-primary" onclick="sendMessage()">
-                <i class="fas fa-paper-plane"></i>
-            </button>
-        </form>
+        <!-- Meal Planner Card -->
+        <div class="col-md-4">
+            <div class="card shadow-lg">
+                <div class="card-body text-center">
+                    <h5 class="card-title">🍽️ Meal Planner</h5>
+                    <p class="card-text">Organize meals and recipes for the family.</p>
+                    <a href="{{ url_for('main.mealplanner') }}" class="btn btn-success">Plan Meals</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Another Feature Example -->
+        <div class="col-md-4">
+            <div class="card shadow-lg">
+                <div class="card-body text-center">
+                    <h5 class="card-title">📅 Schedule</h5>
+                    <p class="card-text">Keep track of important family events.</p>
+                    <a href="#" class="btn btn-warning">View Schedule</a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

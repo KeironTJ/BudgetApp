@@ -1,18 +1,22 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="container mt-5">
+    <div class="card p-4 shadow text-center">
+        <h1 class="mb-3">Admin Dashboard</h1>
+        <p class="lead">Manage users, meal plans, and messages efficiently.</p>
 
-<div class="customdiv">
-    <h1>Admin Home</h1>
-
-    <p class="customp">Welcome to the Admin Home Page!</p>
-
-    <a  href="{{ url_for('admin.admin_users') }}" class="btn btn-primary">View all users</a>
-    <a  href="{{ url_for('admin.admin_mealplanner') }}" class="btn btn-primary">View all meal plans</a>
-    <a  href="{{ url_for('admin.admin_messages') }}" class="btn btn-primary">View all messages</a>
-    
+        <div class="d-grid gap-3 mt-4">
+            <a href="{{ url_for('admin.admin_users') }}" class="btn btn-primary btn-lg">
+                <i class="bi bi-people"></i> View All Users
+            </a>
+            <a href="{{ url_for('admin.admin_mealplanner') }}" class="btn btn-success btn-lg">
+                <i class="bi bi-calendar-check"></i> View All Meal Plans
+            </a>
+            <a href="{{ url_for('admin.admin_messages') }}" class="btn btn-warning btn-lg">
+                <i class="bi bi-chat-dots"></i> View All Messages
+            </a>
+        </div>
+    </div>
 </div>
-
-
-
 {% endblock %}

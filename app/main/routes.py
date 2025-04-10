@@ -12,6 +12,13 @@ from datetime import datetime, timedelta
 @bp.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
+
+    return render_template('main/index.html')
+
+
+@bp.route('/familychat', methods=['GET', 'POST'])
+@login_required
+def familychat():
     form = MessageForm()
 
     if form.validate_on_submit() and form.content.data.strip():
@@ -20,8 +27,7 @@ def index():
 
     # Load full message history **only on page load** (not during message sending)
     messages = Message.query.order_by(Message.timestamp.asc()).all()
-    return render_template('main/index.html', form=form, messages=messages)
-
+    return render_template('main/familychat.html', form=form, messages=messages)
 
 @bp.route('/load_messages')
 @login_required

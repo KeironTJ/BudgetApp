@@ -77,28 +77,6 @@ def admin_messages():
                            title='Admin Messages',
                            messages=messages)
 
-@bp.route('/delete_message/<int:message_id>', methods=['POST'])
-@login_required
-@admin_required
-def delete_message(message_id):
-    message = Message.query.get_or_404(message_id)
-
-    # Ensure only the message owner or admin can delete
-    if message.user_id != current_user.id and not current_user.is_admin():
-        return jsonify({'error': 'Unauthorized'}), 403
-
-    message.deleted = True
-    db.session.commit()
-
-    # Emit WebSocket event ONLY after successful deletion
-    socketio.emit('message_deleted', {
-        'message_id': message.id,
-        'username': message.user.username,
-        'timestamp': message.timestamp.strftime("%d-%m-%Y %H:%M:%S")
-    })
-
-    flash("Message deleted successfully!", "success")
-    return redirect(url_for('admin.admin_messages'))
 
 ## MealPlanner
 # Displays the admin mealplanner page
@@ -115,7 +93,7 @@ def admin_mealplanner():
                            mealplan=mealplan, 
                            form=form)
 
-@bp.route('/add_meal', methods=['GET', 'POST'])
+@bp.route('/admin_add_meal', methods=['GET', 'POST'])
 def add_meal():
     form = AddMealForm()
     if form.validate_on_submit():
@@ -134,7 +112,7 @@ def add_meal():
 
     return redirect(url_for('admin.admin_mealplanner'))
 
-@bp.route('/edit_meal/<int:meal_id>', methods=['GET', 'POST'])
+@bp.route('/admin_edit_meal/<int:meal_id>', methods=['GET', 'POST'])
 def edit_meal(meal_id):
     meal = MealPlan.query.get_or_404(meal_id)
     form = AddMealForm()
@@ -146,7 +124,7 @@ def edit_meal(meal_id):
         flash("Meal updated successfully!", "success")
     return redirect(url_for('admin.admin_mealplanner'))
 
-@bp.route('/delete_meal/<int:meal_id>', methods=['POST'])
+@bp.route('/admin_delete_meal/<int:meal_id>', methods=['POST'])
 def delete_meal(meal_id):
     meal = MealPlan.query.get_or_404(meal_id)
     db.session.delete(meal)
