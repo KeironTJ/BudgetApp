@@ -1,6 +1,9 @@
 from flask_wtf import FlaskForm 
-from wtforms import TextAreaField, DateField, SubmitField, StringField, IntegerField
+from wtforms import TextAreaField, DateField, SubmitField, SelectField, StringField, BooleanField, PasswordField, ValidationError
 from wtforms.validators import DataRequired, Length
+from app.models import User, Role
+from app import db
+import sqlalchemy as sa
 
 ## MealPlanner
 class AddMealForm(FlaskForm):
@@ -22,3 +25,29 @@ class AddMealForm(FlaskForm):
         ]
     )
     add_meal = SubmitField('Add Meal')
+
+# Assign Role Form
+class AssignRoleForm(FlaskForm):
+    username = SelectField('Username', validators=[DataRequired()], choices=[])
+    role = SelectField('Role', validators=[DataRequired()], choices=[])
+    assign = SubmitField('Assign Role')
+    unassign = SubmitField('Unassign Role')
+
+    def __init__(self, *args, **kwargs):
+        super(AssignRoleForm, self).__init__(*args, **kwargs)
+        self.username.choices = [
+            (user.username, user.username) for user in db.session.scalars(sa.select(User)).all()
+        ]
+        self.role.choices = [
+            (role.name, role.name) for role in db.session.scalars(sa.select(Role)).all()
+        ]
+
+    def validate_username(self, username):
+        user = db.session.scalar(sa.select(User).where(User.username == username.data))
+        if user is None:
+            raise ValidationError('User does not exist.')
+
+    def validate_role(self, role):
+        role_names = [role.name for role in db.session.scalars(sa.select(Role)).all()]
+        if role.data not in role_names:
+            raise ValidationError('Invalid role.')

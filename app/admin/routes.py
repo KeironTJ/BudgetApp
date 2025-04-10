@@ -5,7 +5,7 @@ from flask import render_template, flash, redirect, url_for, request, session, j
 from flask_login import login_required, current_user 
 from app.admin.decorators import admin_required
 from app.admin import bp
-from app.admin.forms import AddMealForm
+from app.admin.forms import AddMealForm, AssignRoleForm
 
 
 ## Admin Routes
@@ -24,21 +24,45 @@ def not_admin():
     return render_template('admin/not_admin.html', title='Not Admin')
 
 
-# Displays the admin roles page
+# Displays all user information
 @bp.route('/admin_users', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def admin_users():
+    assignuserroleform = AssignRoleForm()
 
     users = db.session.query(User).all()
     roles = db.session.query(Role).all()
     user_roles = db.session.query(UserRoles).all()
 
-    return render_template('admin/admin_users.html', 
+    if assignuserroleform.validate_on_submit():
+        user = db.session.query(User).filter_by(username=assignuserroleform.username.data).first()
+        
+        if "assign" in request.form:  # Check which button was clicked
+            if user and user.assign_user_role(assignuserroleform.role.data):
+                db.session.commit()
+                flash('Role assigned successfully!', 'success')
+            else:
+                flash('Invalid user or role.', 'danger')
+
+        elif "unassign" in request.form:  # Check if "Unassign" was clicked
+            if user and user.unassign_user_role(assignuserroleform.role.data):
+                db.session.commit()
+
+                # Refresh the user_roles query after deletion
+                user_roles = db.session.query(UserRoles).all()
+
+                flash('Role unassigned successfully!', 'success')
+            else:
+                flash('Invalid user or role.', 'danger')
+
+
+    return render_template('admin/admin_users.html',
                            title='Admin Users',
-                           users=users, 
-                           roles=roles, 
-                           user_roles=user_roles)
+                           users=users,
+                           roles=roles,
+                           user_roles=user_roles,
+                           assignuserroleform=assignuserroleform)
 
 ##Messages
 # Displays the admin messages page

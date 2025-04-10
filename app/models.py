@@ -38,6 +38,21 @@ class User(UserMixin, db.Model):
     
     def is_family_member(self):
         return 'family_member' in [role.name for role in self.roles]
+    
+    def assign_user_role(self, role_name):
+        role = db.session.query(Role).filter_by(name=role_name).first()
+        if role and role not in self.roles:
+            self.roles.append(role)
+            return True 
+        return False
+    
+    def unassign_user_role(self, role_name):
+        role = db.session.query(Role).filter_by(name=role_name).first()
+        if role and role in self.roles:
+            self.roles.remove(role)  
+            return True
+        return False
+
 
 # Model for the Role table
 class Role(db.Model):
@@ -56,8 +71,6 @@ class UserRoles(db.Model):
     id = db.Column(Integer, primary_key=True)
     user_id = db.Column(Integer, db.ForeignKey('user.id'))
     role_id = db.Column(Integer, db.ForeignKey('role.id'), default=2)
-
-    # Relationships
 
 
 ## VEHICLES
