@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<div>
+    <div class="p-2 shadow bg-beige text-center mb-4">
+        <h1>📅 View Activity Detail</h1>
+    </div>
+</div>
+
+
+<!-- View more details modal-->
+<div class="">
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <div class="card-header bg-beige">
+                <h5 class="mb-0">{{ activity.activity_title }}</h5>
+            </div>
+
+            <p><strong>📝 Description:</strong> {{ activity.activity_description }}</p>
+            <p><strong>📍 Location:</strong> {{ activity.activity_location }}</p>
+            
+            <p><span class="badge bg-success">
+                {% if activity.activity_all_day_event %}
+                    All Day Event
+                {% else %}
+                    Timed Event
+                {% endif %}
+            </span></p>
+            <p><strong>📅 From:</strong> {{ activity.activity_start_date.strftime("%d %B %Y") }}
+                {% if activity.activity_start_time %}
+                        at {{ activity.activity_start_time.strftime("%I:%M %p") }}
+                {% endif %} 
+            </p>
+            
+            <p><strong>📅 To:</strong> {{ activity.activity_end_date.strftime("%d %B %Y") }}
+                {% if activity.activity_end_time %}
+                    at {{ activity.activity_end_time.strftime("%I:%M %p") }}
+                {% endif %}
+            </p>
+
+            <p><strong>⏳ Duration:</strong> 
+                    {% if activity.activity_all_day_event %}
+                        {{ (activity.activity_end_date - activity.activity_start_date).days + 1 }} days
+                    {% elif activity.activity_start_time and activity.activity_end_time %}
+                        {% set start = activity.activity_start_date.replace(hour=activity.activity_start_time.hour, minute=activity.activity_start_time.minute) %}
+                        {% set end = activity.activity_end_date.replace(hour=activity.activity_end_time.hour, minute=activity.activity_end_time.minute) %}
+                        {% set duration = (end - start).total_seconds() %}
+                        
+                        {% if (duration // 86400)|int == 0 %}  
+                            {% else %} 
+                                {{ (duration // 86400)|int }} days 
+                        {% endif %}
+
+                        {{ ((duration % 86400) // 3600)|int }} hours 
+                        {{ ((duration % 3600) // 60)|int }} minutes
+                    {% else %}
+                        No specific time set
+                    {% endif %}
+            </p>
+
+            <p><strong>Comments:</strong><br> {{ activity.activity_comments }}</p>
+                
+        </div>
+    </div>
+</div>
+
+<div class = "p-2 shadow bg-beige text-center mb-4">
+    <div class="d-flex justify-content-between gap-2">
+        <a href="{{ url_for('main.activityplanner') }}" class="btn btn-primary flex-grow-1">🏠 Back</a>
+        <a href="#" class="btn btn-warning flex-grow-1" data-bs-toggle="modal" data-bs-target="#editActivityModal">✏️ Edit</a>
+        <a href="{{ url_for('main.delete_activity', id=activity.id) }}" class="btn btn-danger flex-grow-1">❌ Delete</a>
+    </div>
+</div>
+
+<!-- Edit Activity Modal -->
+<div class="modal fade" id="editActivityModal" tabindex="-1" aria-labelledby="editActivityModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-beige">
+                <h5 class="modal-title" id="editActivityModalLabel">Edit Activity</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="editActivityForm" method="POST" action="{{ url_for('main.activity_details', id=activity.id) }}">
+                    {{ editactivityform.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label for="activity_title" class="form-label">Activity Title:*</label>
+                        {{ editactivityform.activity_title(class="form-control") }}
+                        
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="activity_start_date" class="form-label">Start Date:*</label>
+                        {{ editactivityform.activity_start_date(class="form-control") }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="activity_end_date" class="form-label">End Date:*</label>
+                        {{ editactivityform.activity_end_date(class="form-control") }}
+                        
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="activity_all_day_event" class="form-check-label">
+                            {{ editactivityform.activity_all_day_event }} All Day Event
+
+                        </label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="activity_start_time" class="form-label">Start Time:</label>
+                        {{ editactivityform.activity_start_time(class="form-control") }}
+                        
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="activity_end_time" class="form-label">End Time:</label>
+                        {{ editactivityform.activity_end_time(class="form-control") }}
+                        
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="activity_location" class="form-label">Location:</label>
+                        {{ editactivityform.activity_location(class="form-control") }}
+                       
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="activity_description" class="form-label">Description:</label>
+                        {{ editactivityform.activity_description(class="form-control", rows=3) }}
+                        
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="activity_comments" class="form-label">Comments:</label>
+                        {{ editactivityform.activity_comments(class="form-control", rows=3) }}
+                        
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary w-100">
+                            Save Changes
+                        </button>
+                        <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">
+                            Close
+                        </button>
+                    </div>                 
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}

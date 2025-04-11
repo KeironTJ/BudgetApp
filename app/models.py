@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String, func
+from sqlalchemy import Integer, String, func, DateTime, Time, Boolean
 from datetime import datetime, timezone
 import sqlalchemy.orm as so 
 from flask_login import UserMixin 
@@ -156,8 +156,8 @@ class ActivityPlan(db.Model):
     activity_end_date = db.Column(db.DateTime, default=func.now(), nullable=False)
     activity_title = db.Column(db.String(64), nullable=False)
     activity_all_day_event = db.Column(db.Boolean, default=True)
-    activity_start_time = db.Column(db.DateTime)
-    activity_end_time = db.Column(db.DateTime)
+    activity_start_time = db.Column(db.Time)
+    activity_end_time = db.Column(db.Time)
     activity_description = db.Column(db.String(500)) 
     activity_location = db.Column(db.String(500)) 
     activity_comments = db.Column(db.String(500))

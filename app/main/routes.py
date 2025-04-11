@@ -133,9 +133,9 @@ def delete_meal(meal_id):
 @login_required
 def activityplanner():
     addactivityform = AddActivityForm()
-    activities = ActivityPlan.query.all()
-
-    print(addactivityform)
+    activities = ActivityPlan.query.order_by(ActivityPlan.activity_start_date.asc(),
+                                             ActivityPlan.activity_start_time.asc()
+                                             ).all()
 
     if addactivityform.validate_on_submit():
 
@@ -161,3 +161,32 @@ def activityplanner():
                            title='Activity Planner',
                            activities=activities,
                            addactivityform=addactivityform)
+
+
+@bp.route('/activity_details/<int:id>', methods=['GET', 'POST'])
+@login_required
+def activity_details(id):
+
+    activity = ActivityPlan.query.get_or_404(id)
+    editactivityform = AddActivityForm(obj=activity)
+
+    if editactivityform.validate_on_submit():
+        editactivityform.populate_obj(activity)
+        db.session.commit()
+        flash("Activity updated successfully!", "success")
+        return redirect(url_for('main.activity_details', id=activity.id))
+    
+    return render_template("main/activity_details.html", 
+                           editactivityform=editactivityform, 
+                           activity=activity)
+
+
+@bp.route('/delete_activity/<int:id>', methods=['GET', 'POST'])
+@login_required
+def delete_activity(id):
+    activity = ActivityPlan.query.get_or_404(id)
+    db.session.delete(activity)
+    db.session.commit()
+    flash("Activity deleted successfully!", "danger")
+    return redirect(url_for('main.activityplanner'))
+
