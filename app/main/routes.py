@@ -1,10 +1,8 @@
 from app.main import bp
 from flask import render_template, request, redirect, url_for, flash, jsonify
-from app.models import Message, MealPlan
-from app.main.forms import AddMealForm
-from app.main.forms import MessageForm
+from app.models import Message, MealPlan, ActivityPlan
+from app.main.forms import AddMealForm, MessageForm, AddActivityForm
 from flask_login import login_required, current_user
-from flask_socketio import emit
 from app import db, socketio
 from datetime import datetime, timedelta
 
@@ -16,6 +14,7 @@ def index():
     return render_template('main/index.html')
 
 
+## Messaging Routes
 @bp.route('/familychat', methods=['GET', 'POST'])
 @login_required
 def familychat():
@@ -27,7 +26,10 @@ def familychat():
 
     # Load full message history **only on page load** (not during message sending)
     messages = Message.query.order_by(Message.timestamp.asc()).all()
-    return render_template('main/familychat.html', form=form, messages=messages)
+    return render_template('main/familychat.html', 
+                            title='Family Chat',
+                            form=form,
+                            messages=messages)
 
 @bp.route('/load_messages')
 @login_required
@@ -125,3 +127,37 @@ def delete_meal(meal_id):
     db.session.commit()
     flash("Meal deleted successfully!", "success")
     return redirect(url_for('main.mealplanner'))
+
+## Family Activity Planner Routes
+@bp.route('/activityplanner', methods=['GET', 'POST'])
+@login_required
+def activityplanner():
+    addactivityform = AddActivityForm()
+    activities = ActivityPlan.query.all()
+
+    print(addactivityform)
+
+    if addactivityform.validate_on_submit():
+
+        activity = ActivityPlan(
+            user_id=current_user.id,
+            activity_start_date=addactivityform.activity_start_date.data,
+            activity_end_date=addactivityform.activity_end_date.data,
+            activity_start_time=addactivityform.activity_start_time.data,
+            activity_end_time=addactivityform.activity_end_time.data,
+            activity_all_day_event=addactivityform.activity_all_day_event.data,
+            activity_title=addactivityform.activity_title.data,
+            activity_description=addactivityform.activity_description.data,
+            activity_comments=addactivityform.activity_comments.data,
+            activity_location=addactivityform.activity_location.data
+        )
+        db.session.add(activity)
+        db.session.commit()
+        flash('Activity added successfully!', 'success')
+        return redirect(url_for('main.activityplanner'))
+
+
+    return render_template('main/activityplanner.html',
+                           title='Activity Planner',
+                           activities=activities,
+                           addactivityform=addactivityform)

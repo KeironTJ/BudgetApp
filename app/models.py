@@ -145,3 +145,22 @@ class MealPlan(db.Model):
 
     # Relationships
     user = db.relationship('User', backref='meal_plans', lazy=True) 
+
+
+## ACTIVITY PLANNING
+class ActivityPlan(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # KEEP AS REFERENCE - MAY LINK TO A FAMILY ID IN THE FUTURE
+    activity_date = db.Column(db.DateTime, default=func.now())
+    activity_start_date = db.Column(db.DateTime, default=func.now(), nullable=False)
+    activity_end_date = db.Column(db.DateTime, default=func.now(), nullable=False)
+    activity_title = db.Column(db.String(64), nullable=False)
+    activity_all_day_event = db.Column(db.Boolean, default=True)
+    activity_start_time = db.Column(db.DateTime)
+    activity_end_time = db.Column(db.DateTime)
+    activity_description = db.Column(db.String(500)) 
+    activity_location = db.Column(db.String(500)) 
+    activity_comments = db.Column(db.String(500))
+
+    # Relationships
+    user = db.relationship('User', backref='activity_plans', lazy=True)
