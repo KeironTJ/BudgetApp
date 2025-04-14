@@ -87,40 +87,48 @@ def mealplanner():
                          .all()
 
     
-    form = AddMealForm()
-    if form.validate_on_submit():
+    addMealForm = AddMealForm()
+    if addMealForm.validate_on_submit():
         meal = MealPlan(
             user_id=current_user.id,
-            meal_date=form.meal_date.data,
-            meal_description=form.meal_description.data,
-            meal_source=form.meal_source.data
+            meal_title=addMealForm.meal_title.data,
+            meal_date=addMealForm.meal_date.data,
+            meal_description=addMealForm.meal_description.data,
+            meal_source=addMealForm.meal_source.data
         )
         db.session.add(meal)
         db.session.commit()
         flash('Meal added successfully!', 'success')
         return redirect(url_for('main.mealplanner'))
+    
     elif request.method == 'POST':
         flash('Please fill in all fields.', 'danger')
 
     return render_template('main/mealplanner.html',
                            title='Meal Planner',
                            mealplan=mealplan,
-                           form=form)
+                           addMealForm=addMealForm)
 
-@bp.route('/edit_meal/<int:meal_id>', methods=['GET', 'POST'])
-def edit_meal(meal_id):
+@bp.route('/meal_details/<int:meal_id>', methods=['GET', 'POST'])
+@login_required
+def meal_details(meal_id):
     meal = MealPlan.query.get_or_404(meal_id)
-    form = AddMealForm()
-    if form.validate_on_submit():
-        meal.meal_date = form.meal_date.data
-        meal.meal_description = form.meal_description.data
-        meal.meal_source = form.meal_source.data
+    editmealform = AddMealForm(obj=meal)
+
+    if editmealform.validate_on_submit():
+        editmealform.populate_obj(meal)
         db.session.commit()
         flash("Meal updated successfully!", "success")
-    return redirect(url_for('main.mealplanner'))
+        return redirect(url_for('main.mealplanner'))
+
+    return render_template('main/meal_details.html', 
+                           title='Meal Details',
+                           editmealform=editmealform,
+                           meal=meal)
 
 
-@bp.route('/delete_meal/<int:meal_id>', methods=['POST'])
+
+@bp.route('/delete_meal/<int:meal_id>', methods=['GET','POST'])
 def delete_meal(meal_id):
     meal = MealPlan.query.get_or_404(meal_id)
     db.session.delete(meal)

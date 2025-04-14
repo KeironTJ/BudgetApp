@@ -11,14 +11,19 @@
 </div>
 
 
-<!-- View more details modal-->
+<!-- View more details-->
 <div class="">
     <div class="card shadow-sm mb-3">
         <div class="card-body">
-            <div class="card-header bg-beige">
-                <h5 class="mb-0">{{ activity.activity_title }}</h5>
-            </div>
 
+            <!-- HEADER CARD -->
+             <p>
+                <div class="card-header bg-beige">
+                    <h5 class="mb-0">{{ activity.activity_title }}</h5>
+                </div>
+             </p>
+
+            <!--BODY CARD-->
             <p><strong>📝 Description:</strong> {{ activity.activity_description }}</p>
             <p><strong>📍 Location:</strong> {{ activity.activity_location }}</p>
             
@@ -71,7 +76,9 @@
     <div class="d-flex justify-content-between gap-2">
         <a href="{{ url_for('main.activityplanner') }}" class="btn btn-primary flex-grow-1">🏠 Back</a>
         <a href="#" class="btn btn-warning flex-grow-1" data-bs-toggle="modal" data-bs-target="#editActivityModal">✏️ Edit</a>
-        <a href="{{ url_for('main.delete_activity', id=activity.id) }}" class="btn btn-danger flex-grow-1">❌ Delete</a>
+        <a href="#" class="btn btn-danger flex-grow-1" data-bs-toggle="modal" data-bs-target="#deleteActivityModal{{ activity.id }}">
+            ❌ Delete
+        </a>
     </div>
 </div>
 
@@ -143,14 +150,39 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary w-100">
+
+                        <button type="submit" class="btn btn-warning w-100">
                             Save Changes
                         </button>
+
                         <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">
                             Close
                         </button>
+
                     </div>                 
 
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Activity Modal -->
+<div class="modal fade" id="deleteActivityModal{{ activity.id }}" tabindex="-1" aria-labelledby="deleteActivityLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Delete Activity</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this activity?</p>
+                <strong>{{ activity.activity_title }}</strong>
+                <form action="{{ url_for('main.delete_activity', id=activity.id) }}" method="post">
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                        <button type="button" class="btn btn-secondary ms-2" data-bs-dismiss="modal">Cancel</button>
+                    </div>
                 </form>
             </div>
         </div>

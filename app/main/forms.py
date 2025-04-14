@@ -18,12 +18,17 @@ class AddMealForm(FlaskForm):
         'Meal Date',
         validators=[DataRequired(message="Please enter a valid date")]
     )
+    meal_title = StringField(
+        'Meal Title',
+        validators=[
+            DataRequired(message="Meal title cannot be empty"),
+            Length(max=64, message="Meal title cannot exceed 64 characters")
+        ]
+    )
+
     meal_description = TextAreaField(
         'Meal Description',
-        validators=[
-            DataRequired(message="Meal description cannot be empty"),
-            Length(max=500, message="Meal description cannot exceed 500 characters")
-        ]
+        validators=[Length(max=500, message="Meal description cannot exceed 500 characters")]
     )
     meal_source = TextAreaField(
         'Meal Source',
