@@ -11,85 +11,86 @@
 </div>
 
 <div>
-    <div class="p-2 shadow bg-soft-beige text-center mb-4">
+    <div class="text-center">
         <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#addActivityModal">
             ➕ Add New Activity
         </a>
     </div>
 </div>
 
+<hr class="mb-4">
+
 <!-- Displaying Activities -->
-<div class="row">
-    {% if activities|length == 0 %}
-        <div class="p-2 shadow col text-center mb-4">
-            <h5>No activities scheduled yet.</h5>
-        </div>
-    {% endif %}
+{% if activities|length == 0 %}
+    <div class="p-2 shadow col text-center mb-4">
+        <h5>No activities scheduled yet.</h5>
+    </div>
+{% endif %}
 
-    {% for activity in activities %}
-        <a href="{{ url_for('main.activity_details', id=activity.id) }}" class="card-link text-decoration-none">
+<div class="container">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
 
-            <div class="card shadow-sm mb-3">
-                <div class="card-body">
+        {% for activity in activities %}
+            <a href="{{ url_for('main.activity_details', id=activity.id) }}" class="card-link text-decoration-none">
+                <div class="col">
+                    <div class="card shadow-lg h-100">
 
-                    <div class="card-header bg-beige">
-                        <h5 class="mb-0">{{ activity.activity_title }}</h5>
-                    </div>
-            
+                        <!-- HEADER CARD -->
+                        <div class="card-header bg-beige justify-content-center align-items-center text-center">
+                            <h5 class="mb-0">{{ activity.activity_title }}</h5>
+                        </div>
+                
+                        <!-- BODY CARD -->
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                            <small>
+                                <span class="badge bg-success">
+                                    {% if activity.activity_all_day_event %}
+                                        All Day Event
+                                    {% else %}
+                                        Timed Event
+                                    {% endif %}
+                                </span>
+                            </small>
 
-                    <small>
-                        <span class="badge bg-success">
-                            {% if activity.activity_all_day_event %}
-                                All Day Event
-                            {% else %}
-                                Timed Event
-                            {% endif %}
-                        </span>
-                    </small>
-                    
-                    <br>
+                            <small class="text-muted">📅 <strong>From: </strong> {{ activity.activity_start_date.strftime("%d %B %Y") }} 
+                                {% if activity.activity_start_time %}
+                                    at {{ activity.activity_start_time.strftime("%I:%M %p") }}
+                                {% endif %} 
+                            </small>
 
-                    <small class="text-muted">📅 <strong>From: </strong> {{ activity.activity_start_date.strftime("%d %B %Y") }} 
-                        {% if activity.activity_start_time %}
-                            at {{ activity.activity_start_time.strftime("%I:%M %p") }}
-                        {% endif %} 
-                    </small>
-                    
-                    <br>
+                            <small class="text-muted">📅 <strong>To:</strong> {{ activity.activity_end_date.strftime("%d %B %Y") }}
+                                {% if activity.activity_end_time %}
+                                    at {{ activity.activity_end_time.strftime("%I:%M %p") }}
+                                {% endif %}
+                            </small>
 
-                    <small class="text-muted">📅 <strong>To:</strong> {{ activity.activity_end_date.strftime("%d %B %Y") }}
-                        {% if activity.activity_end_time %}
-                            at {{ activity.activity_end_time.strftime("%I:%M %p") }}
-                        {% endif %}
-                    </small>
+                            <small class="text-muted">
+                                ⏳ <strong>Duration:</strong> 
+                                {% if activity.activity_all_day_event %}
+                                    {{ (activity.activity_end_date - activity.activity_start_date).days + 1 }} days
+                                {% elif activity.activity_start_time and activity.activity_end_time %}
+                                    {% set start = activity.activity_start_date.replace(hour=activity.activity_start_time.hour, minute=activity.activity_start_time.minute) %}
+                                    {% set end = activity.activity_end_date.replace(hour=activity.activity_end_time.hour, minute=activity.activity_end_time.minute) %}
+                                    {% set duration = (end - start).total_seconds() %}
+                                    
+                                    {% if (duration // 86400)|int == 0 %}  
+                                        {% else %} 
+                                            {{ (duration // 86400)|int }} days 
+                                    {% endif %}
 
-                    <br>
-
-                    <small class="text-muted">
-                        ⏳ <strong>Duration:</strong> 
-                        {% if activity.activity_all_day_event %}
-                            {{ (activity.activity_end_date - activity.activity_start_date).days + 1 }} days
-                        {% elif activity.activity_start_time and activity.activity_end_time %}
-                            {% set start = activity.activity_start_date.replace(hour=activity.activity_start_time.hour, minute=activity.activity_start_time.minute) %}
-                            {% set end = activity.activity_end_date.replace(hour=activity.activity_end_time.hour, minute=activity.activity_end_time.minute) %}
-                            {% set duration = (end - start).total_seconds() %}
+                                    {{ ((duration % 86400) // 3600)|int }} hours 
+                                    {{ ((duration % 3600) // 60)|int }} minutes
+                                {% else %}
+                                    No specific time set
+                                {% endif %}
+                            </small>
+                        </div>
                             
-                            {% if (duration // 86400)|int == 0 %}  
-                                {% else %} 
-                                    {{ (duration // 86400)|int }} days 
-                            {% endif %}
-
-                            {{ ((duration % 86400) // 3600)|int }} hours 
-                            {{ ((duration % 3600) // 60)|int }} minutes
-                        {% else %}
-                            No specific time set
-                        {% endif %}
-                    </small>
-                    
+                    </div>
                 </div>
-            </div>
-        </a>
-    {% endfor %}
+            </a>
+        {% endfor %}
+    </div>
 </div>
 
 <!-- Add Activity Modal -->

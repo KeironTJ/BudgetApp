@@ -8,37 +8,41 @@
     </div>
 </div>
 
-<div class="row mt-4">
-    <!-- Family Chat Card -->
-    <div class="col-md-4">
-        <div class="card shadow-lg">
-            <div class="card-body text-center bg-soft-primary">
-                <h5 class="card-title">💬 Family Chat</h5>
-                <p class="card-text">Connect with family members in real-time.</p>
-                <a href="{{ url_for('main.familychat') }}" class="btn btn-primary">Go to Chat</a>
-            </div>
-        </div>
-    </div>
+<hr class="mb-4">
 
-    <!-- Meal Planner Card -->
-    <div class="col-md-4">
-        <div class="card shadow-lg">
-            <div class="card-body text-center bg-green">
-                <h5 class="card-title">🍽️ Meal Planner</h5>
-                <p class="card-text">Organize meals and recipes for the family.</p>
-                <a href="{{ url_for('main.mealplanner') }}" class="btn btn-success">Plan Meals</a>
-            </div>
+<div class="container">
+    <div class="row g-4">
+        <div class="col-12">
+            <a href="{{ url_for('main.familychat') }}" class="card-link text-decoration-none">
+                <div class="card shadow-lg">
+                    <div class="card-body text-center bg-soft-primary">
+                        <h5 class="card-title">💬 Family Chat</h5>
+                        <p class="card-text">Connect with family members in real-time.</p>
+                    </div>
+                </div>
+            </a>
         </div>
-    </div>
 
-    <!-- Activity Planner Card -->
-    <div class="col-md-4">
-        <div class="card shadow-lg">
-            <div class="card-body text-center bg-soft-beige">
-                <h5 class="card-title">📅 Activity Planner</h5>
-                <p class="card-text">Keep track of important family events.</p>
-                <a href="{{ url_for('main.activityplanner') }}" class="btn btn-warning">View Activities</a>
-            </div>
+        <div class="col-12">
+            <a href="{{ url_for('main.mealplanner') }}" class="card-link text-decoration-none">
+                <div class="card shadow-lg">
+                    <div class="card-body text-center bg-green">
+                        <h5 class="card-title">🍽️ Meal Planner</h5>
+                        <p class="card-text">Organize meals and recipes for the family.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12">
+            <a href="{{ url_for('main.activityplanner') }}" class="card-link text-decoration-none">
+                <div class="card shadow-lg">
+                    <div class="card-body text-center bg-soft-beige">
+                        <h5 class="card-title">📅 Activity Planner</h5>
+                        <p class="card-text">Keep track of important family events.</p>
+                    </div>
+                </div>
+            </a>
         </div>
     </div>
 </div>

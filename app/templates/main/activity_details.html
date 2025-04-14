@@ -10,69 +10,108 @@
     </div>
 </div>
 
+<hr class="mb-4">
+
 
 <!-- View more details-->
-<div class="">
-    <div class="card shadow-sm mb-3">
-        <div class="card-body">
-
-            <!-- HEADER CARD -->
-             <p>
-                <div class="card-header bg-beige">
-                    <h5 class="mb-0">{{ activity.activity_title }}</h5>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-beige text-center">
+                    <h4 class="mb-0">{{ activity.activity_title }}</h5>
                 </div>
-             </p>
 
-            <!--BODY CARD-->
-            <p><strong>📝 Description:</strong> {{ activity.activity_description }}</p>
-            <p><strong>📍 Location:</strong> {{ activity.activity_location }}</p>
-            
-            <p><span class="badge bg-success">
-                {% if activity.activity_all_day_event %}
-                    All Day Event
-                {% else %}
-                    Timed Event
-                {% endif %}
-            </span></p>
-            <p><strong>📅 From:</strong> {{ activity.activity_start_date.strftime("%d %B %Y") }}
-                {% if activity.activity_start_time %}
-                        at {{ activity.activity_start_time.strftime("%I:%M %p") }}
-                {% endif %} 
-            </p>
-            
-            <p><strong>📅 To:</strong> {{ activity.activity_end_date.strftime("%d %B %Y") }}
-                {% if activity.activity_end_time %}
-                    at {{ activity.activity_end_time.strftime("%I:%M %p") }}
-                {% endif %}
-            </p>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold d-block">📝 Description:</label>
+                        <p class="card-text">
+                            {% if activity.activity_description %}
+                                {{ activity.activity_description }}
+                            {% else %}
+                                <span class="badge bg-secondary">No description available</span>
+                            {% endif %}
+                        </p>
+                    </div>
 
-            <p><strong>⏳ Duration:</strong> 
-                    {% if activity.activity_all_day_event %}
-                        {{ (activity.activity_end_date - activity.activity_start_date).days + 1 }} days
-                    {% elif activity.activity_start_time and activity.activity_end_time %}
-                        {% set start = activity.activity_start_date.replace(hour=activity.activity_start_time.hour, minute=activity.activity_start_time.minute) %}
-                        {% set end = activity.activity_end_date.replace(hour=activity.activity_end_time.hour, minute=activity.activity_end_time.minute) %}
-                        {% set duration = (end - start).total_seconds() %}
-                        
-                        {% if (duration // 86400)|int == 0 %}  
-                            {% else %} 
-                                {{ (duration // 86400)|int }} days 
-                        {% endif %}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold d-block">📍 Location:</label>
+                        <p class="card-text">
+                            {% if activity.activity_location %}
+                                {{ activity.activity_location }}
+                            {% else %}
+                                <span class="badge bg-secondary">No location specified</span>
+                            {% endif %}
+                        </p>
+                    </div>
 
-                        {{ ((duration % 86400) // 3600)|int }} hours 
-                        {{ ((duration % 3600) // 60)|int }} minutes
-                    {% else %}
-                        No specific time set
-                    {% endif %}
-            </p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold d-block">⏳ Event Type:</label>
+                        <span class="badge bg-success">
+                            {% if activity.activity_all_day_event %}
+                                All Day Event
+                            {% else %}
+                                Timed Event
+                            {% endif %}
+                        </span>
+                    </div>
 
-            <p><strong>Comments:</strong><br> {{ activity.activity_comments }}</p>
-                
+                    <div class="mb-3">
+                        <label class="form-label fw-bold d-block">📅 From:</label>
+                        <p class="card-text">{{ activity.activity_start_date.strftime("%d %B %Y") }}
+                            {% if activity.activity_start_time %}
+                                at {{ activity.activity_start_time.strftime("%I:%M %p") }}
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold d-block">📅 To:</label>
+                        <p class="card-text">{{ activity.activity_end_date.strftime("%d %B %Y") }}
+                            {% if activity.activity_end_time %}
+                                at {{ activity.activity_end_time.strftime("%I:%M %p") }}
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold d-block">⏳ Duration:</label>
+                        <p class="card-text">
+                            {% if activity.activity_all_day_event %}
+                                {{ (activity.activity_end_date - activity.activity_start_date).days + 1 }} days
+                            {% elif activity.activity_start_time and activity.activity_end_time %}
+                                {% set start = activity.activity_start_date.replace(hour=activity.activity_start_time.hour, minute=activity.activity_start_time.minute) %}
+                                {% set end = activity.activity_end_date.replace(hour=activity.activity_end_time.hour, minute=activity.activity_end_time.minute) %}
+                                {% set duration = (end - start).total_seconds() %}
+
+                                {% if (duration // 86400) > 0 %}  
+                                    {{ (duration // 86400) }} days  
+                                {% endif %}
+                                {{ ((duration % 86400) // 3600) }} hours 
+                                {{ ((duration % 3600) // 60) }} minutes
+                            {% else %}
+                                No specific time set
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold d-block">💬 Comments:</label>
+                        <p class="card-text">
+                            {% if activity.activity_comments %}
+                                {{ activity.activity_comments }}
+                            {% else %}
+                                <span class="badge bg-secondary">No comments available</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<div class = "p-2 shadow bg-beige text-center mb-4">
+<div class = "text-center">
     <div class="d-flex justify-content-between gap-2">
         <a href="{{ url_for('main.activityplanner') }}" class="btn btn-primary flex-grow-1">🏠 Back</a>
         <a href="#" class="btn btn-warning flex-grow-1" data-bs-toggle="modal" data-bs-target="#editActivityModal">✏️ Edit</a>
@@ -81,6 +120,8 @@
         </a>
     </div>
 </div>
+
+<hr class="mb-4">
 
 <!-- Edit Activity Modal -->
 <div class="modal fade" id="editActivityModal" tabindex="-1" aria-labelledby="editActivityModalLabel" aria-hidden="true">

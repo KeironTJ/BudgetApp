@@ -8,42 +8,49 @@
 </div>
 
 <!-- View more details-->
-<div class="">
-    <div class="card shadow-sm mb-3">
-        <div class="card-body">
-
-
-            <!-- HEADER CARD -->
-            <p>
-                <div class="card-header bg-soft-green">
-                    <h5 class="mb-0">{{ meal.meal_title }}</h5>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-soft-green text-center">
+                    <h4 class="mb-0">{{ meal.meal_title }}</h5>
                 </div>
-            </p> 
 
-            <!--BODY CARD-->
-            <p><strong>📅 Date:</strong> {{ meal.meal_date.strftime("%d-%m-%Y") }} - {{ meal.meal_date.strftime("%A") }}</p>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold d-block">📅 Date:</label>
+                        <p class="card-text">{{ meal.meal_date.strftime("%d-%m-%Y") }} - {{ meal.meal_date.strftime("%A") }}</p>
+                    </div>
 
-            <p><strong>⏳ Description:</strong> 
-                {% if meal.meal_description %}
-                    {{ meal.meal_description }}
-                {% else %}
-                    No description available.
-                {% endif %}
-            </p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold d-block">📝 Description:</label>
+                        <p class="card-text">
+                            {% if meal.meal_description %}
+                                {{ meal.meal_description }}
+                            {% else %}
+                                <span class="badge bg-secondary">No description available</span>
+                            {% endif %}
+                        </p>
+                    </div>
 
-            <p><strong>📍 Source:</strong> 
-                {% if meal.meal_source %}
-                    {{ meal.meal_source }}
-                {% else %}
-                    No source available.
-                {% endif %}
-                
+                    <div class="mb-3">
+                        <label class="form-label fw-bold d-block">🍴 Recipe:</label>
+                        <p class="card-text">
+                            {% if meal.meal_source %}
+                                {{ meal.meal_source }}
+                            {% else %}
+                                <span class="badge bg-secondary">No recipe available</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 
-<div class = "p-2 shadow bg-green text-center mb-4">
+<div class = "text-center">
     <div class="d-flex justify-content-between gap-2">
         <a href="{{ url_for('main.mealplanner') }}" class="btn btn-primary flex-grow-1">🏠 Back</a>
         <a href="#" class="btn btn-warning flex-grow-1" data-bs-toggle="modal" data-bs-target="#editMealModal">✏️ Edit</a>

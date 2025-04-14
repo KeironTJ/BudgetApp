@@ -9,7 +9,7 @@
 </div>
 
 <div>
-    <div class="p-2 shadow bg-green text-center mb-4">
+    <div class="text-center">
         <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addMealModal">
             ➕ Add New Meal
         </a>
@@ -19,6 +19,7 @@
 
 <hr class="mb-4">
 
+<!--- Displaying Meals -->
 {% if mealplan|length == 0 %}
     <div class="p-2 shadow col text-center mb-4">
         <h5>No Meals Planned yet.</h5>
@@ -35,31 +36,17 @@
                 <div class="card shadow-lg h-100">
 
                     <!--HEADER CARD-->
-                    <div class="card-header bg-soft-green">
-                        <strong>{{ meal.meal_date.strftime("%d-%m-%Y") }} - {{ meal.meal_date.strftime("%A") }}</strong><br>
-                        <strong class="card-title">{{ meal.meal_title }}</strong>
+                    <div class="card-header bg-soft-green justify-content-center align-items-center text-center">
+                        <strong class="card-title">{{ meal.meal_title }}</strong><br>    
                     </div>
 
-                    {% if not meal.meal_description and not meal.meal_source %}
-                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
-                        <p class="card-text">No details available.</p>
-                    </div>
-                    {% else %}
-                        <!--BODY CARD-->
-                        <div class="card-body d-flex flex-column">
-                            
-                            {% if meal.meal_description %}
-                            <strong>Description:</strong>
-                            <p class="card-text flex-grow-1">{{ meal.meal_description }}</p>
-                            {% endif %}
-
-                            {% if meal.meal_source %}
-                            <strong>Recipe:</strong>
-                            <p class="card-text flex-grow-1">{{ meal.meal_source }}</p>
-                            {% endif %}
-
+                    <!--BODY CARD-->
+                    <small>
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                            <p class="card-text flex-grow-1">📅 <strong>Date:</strong> {{ meal.meal_date.strftime("%d-%m-%Y") }} - {{ meal.meal_date.strftime("%A") }} </p>
                         </div>
-                    {% endif %}
+                    </small>
+                    
                 </div>
             </div>
         </a>
