@@ -18,8 +18,17 @@ class User(UserMixin, db.Model):
     email = db.Column(String(120), index=True, unique=True)
     password_hash = db.Column(String(256))
 
+    first_name = db.Column(String(64), nullable=True)  
+    last_name = db.Column(String(64), nullable=True)  
+    primary_phone_number = db.Column(String(20), nullable=True) 
+    secondary_phone_number = db.Column(String(20), nullable=True)  
+    dob = db.Column(DateTime, nullable=True)
+    profile_picture = db.Column(String(256), nullable=True)  #TODO: Add URL or path to the profile picture 
+
+
     #Relationships
     roles = so.relationship('Role', secondary='user_roles', back_populates='users')
+    address = so.relationship('Address', back_populates='user', uselist=False)  # One-to-one relationship with Address
     
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -52,6 +61,22 @@ class User(UserMixin, db.Model):
             self.roles.remove(role)  
             return True
         return False
+    
+# Model for addresses
+class Address(db.Model):
+    id = db.Column(Integer, primary_key=True)
+    street_address = db.Column(String(255))
+    city = db.Column(String(100))
+    county = db.Column(String(100), nullable=True)  # Optional field
+    postal_code = db.Column(String(20))
+    country = db.Column(String(100), default='United Kingdom')  # Example default
+
+    user_id = db.Column(Integer, db.ForeignKey('user.id'))
+    user = so.relationship("User", back_populates="address")
+
+    def __repr__(self):
+        return f'<Address: {self.street_address}, {self.city}, {self.postal_code}>'
+    
 
 
 # Model for the Role table
