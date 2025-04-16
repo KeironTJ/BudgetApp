@@ -13,7 +13,7 @@ from app.auth import bp
 def login():
 
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
     
     form = LoginForm()
 
@@ -69,7 +69,7 @@ def register():
         db.session.commit()
         flash('You have been assigned the default user role.')
 
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
     
     return render_template('auth/register.html', 
                            title='Register', 
