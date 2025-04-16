@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title">User Profile</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username:</label>
+                        <input type="text" class="form-control-plaintext" id="username" value="{{ user.username }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email:</label>
+                        <input type="email" class="form-control-plaintext" id="email" value="{{ user.email }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Roles:</label>
+                        {% if user.roles %}
+                            <ul class="list-unstyled">
+                                {% for role in user.roles %}
+                                    <li><span class="badge bg-secondary">{{ role.name }}</span></li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">No roles assigned.</p>
+                        {% endif %}
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center mt-4">
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+
+{% endblock %}
