@@ -31,7 +31,7 @@
         
 
         {% for meal in mealplan %}
-        <a href="{{ url_for('main.meal_details', meal_id=meal.id) }}" class="card-link text-decoration-none">
+        <a href="{{ url_for('meal_planner.meal_details', meal_id=meal.id) }}" class="card-link text-decoration-none">
             <div class="col">
                 <div class="card shadow-lg h-100">
 
@@ -67,7 +67,7 @@
             </div>
 
             <div class="modal-body">
-                <form id="addMealForm" method="POST" action="{{ url_for('main.mealplanner') }}">
+                <form id="addMealForm" method="POST" action="{{ url_for('meal_planner.mealplanner') }}">
                     {{ addMealForm.hidden_tag() }}
 
                     <div class="mb-3">

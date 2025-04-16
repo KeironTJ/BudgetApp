@@ -31,7 +31,7 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
 
         {% for activity in activities %}
-            <a href="{{ url_for('main.activity_details', id=activity.id) }}" class="card-link text-decoration-none">
+            <a href="{{ url_for('activity_planner.activity_details', id=activity.id) }}" class="card-link text-decoration-none">
                 <div class="col">
                     <div class="card shadow-lg h-100">
 
@@ -103,7 +103,7 @@
             </div>
 
             <div class="modal-body">
-                <form id="addActivityForm" method="POST" action="{{ url_for('main.activityplanner') }}">
+                <form id="addActivityForm" method="POST" action="{{ url_for('activity_planner.activityplanner') }}">
                     {{ addactivityform.hidden_tag() }}
 
                     <div class="mb-3">

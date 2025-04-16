@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div>
+    <div class="p-2 shadow text-center mb-4">
+        <h1>Welcome to the Jones HQ Dashboard!</h1>
+        <p class="lead">Manage your family activities effortlessly.</p>
+    </div>
+</div>
+
+<hr class="mb-4">
+
+<div class="container">
+    <div class="row g-4">
+        <div class="col-12">
+            <a href="{{ url_for('chat.familychat') }}" class="card-link text-decoration-none">
+                <div class="card shadow-lg">
+                    <div class="card-body text-center bg-soft-primary">
+                        <h5 class="card-title">💬 Family Chat</h5>
+                        <p class="card-text">Connect with family members in real-time.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12">
+            <a href="{{ url_for('meal_planner.mealplanner') }}" class="card-link text-decoration-none">
+                <div class="card shadow-lg">
+                    <div class="card-body text-center bg-green">
+                        <h5 class="card-title">🍽️ Meal Planner</h5>
+                        <p class="card-text">Organize meals and recipes for the family.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12">
+            <a href="{{ url_for('activity_planner.activityplanner') }}" class="card-link text-decoration-none">
+                <div class="card shadow-lg">
+                    <div class="card-body text-center bg-soft-beige">
+                        <h5 class="card-title">📅 Activity Planner</h5>
+                        <p class="card-text">Keep track of important family events.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

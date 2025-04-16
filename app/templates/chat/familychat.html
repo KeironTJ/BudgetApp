@@ -145,7 +145,7 @@
 
         socket.emit("new_message", { user_id: userId, content: messageContent });
 
-        fetch('{{ url_for("main.familychat") }}', {
+        fetch('{{ url_for("chat.familychat") }}', {
             method: 'POST',
             body: new FormData(document.getElementById("messageForm")),
             headers: { 'X-Requested-With': 'XMLHttpRequest' }

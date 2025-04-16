@@ -44,6 +44,16 @@ def create_app(config_class=Config):
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
 
+    from app.activity_planner import bp as activity_planner_bp
+    app.register_blueprint(activity_planner_bp)
+
+    from app.chat import bp as chat_bp
+    app.register_blueprint(chat_bp)
+
+    from app.meal_planner import bp as meal_planner_bp
+    app.register_blueprint(meal_planner_bp)
+    
+
     from app.vehicle import bp as vehicle_bp
     app.register_blueprint(vehicle_bp)
 
