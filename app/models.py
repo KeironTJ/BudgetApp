@@ -11,7 +11,7 @@ def load_user(id):
     return db.session.get(User, int(id))
 
 
-# Model for the User table
+## USER MANAGEMENT
 class User(UserMixin, db.Model):
     id = db.Column(Integer, primary_key=True)
     username = db.Column(String(64), index=True, unique=True)
@@ -29,6 +29,8 @@ class User(UserMixin, db.Model):
     #Relationships
     roles = so.relationship('Role', secondary='user_roles', back_populates='users')
     address = so.relationship('Address', back_populates='user', uselist=False)  # One-to-one relationship with Address
+    families = so.relationship('Family', secondary='family_members', back_populates='members')
+    family_members = so.relationship('FamilyMembers', back_populates='user', overlaps='families')
     
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -41,12 +43,6 @@ class User(UserMixin, db.Model):
     
     def is_admin(self):
         return 'admin' in [role.name for role in self.roles]
-    
-    def is_family_leader(self):
-        return 'family_leader' in [role.name for role in self.roles]
-    
-    def is_family_member(self):
-        return 'family_member' in [role.name for role in self.roles]
     
     def assign_user_role(self, role_name):
         role = db.session.query(Role).filter_by(name=role_name).first()
@@ -61,6 +57,16 @@ class User(UserMixin, db.Model):
             self.roles.remove(role)  
             return True
         return False
+    
+    def is_family_owner(self, family):
+        return family.owner_id == self.id
+
+    def is_family_co_owner(self, family):
+        family_member = FamilyMembers.query.filter_by(user_id=self.id, family_id=family.id).first()
+        return family_member and family_member.role_in_family == 'co-owner'
+
+    def is_family_member_of(self, family):
+        return family in self.families
     
 # Model for addresses
 class Address(db.Model):
@@ -79,7 +85,7 @@ class Address(db.Model):
     
 
 
-# Model for the Role table
+## ROLE MANAGEMENT
 class Role(db.Model):
     id = db.Column(Integer, primary_key=True)
     name = db.Column(String(64), index=True, unique=True)
@@ -91,11 +97,44 @@ class Role(db.Model):
         return '<Role {}>'.format(self.name)
     
 
-# Model for the UserRoles table
 class UserRoles(db.Model):
     id = db.Column(Integer, primary_key=True)
     user_id = db.Column(Integer, db.ForeignKey('user.id'))
     role_id = db.Column(Integer, db.ForeignKey('role.id'), default=2)
+
+## FAMILY MANAGEMENT
+class Family(db.Model):
+    id = db.Column(Integer, primary_key=True)
+    name = db.Column(String(128), index=True, unique=True, nullable=False)
+    owner_id = db.Column(Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(DateTime, default=func.now())
+    invitation_code = db.Column(String(64), unique=True, nullable=False)  # New field
+
+    # Relationships
+    owner = so.relationship('User', backref='owned_families', foreign_keys=[owner_id])
+    members = so.relationship('User', secondary='family_members', back_populates='families')
+    family_members = so.relationship('FamilyMembers', back_populates='family', overlaps='members')
+    
+
+    def __repr__(self):
+        return f'<Family {self.name}>'
+
+
+# Association Table for Family Members
+class FamilyMembers(db.Model):
+    id = db.Column(Integer, primary_key=True)
+    user_id = db.Column(Integer, db.ForeignKey('user.id'), nullable=False)
+    family_id = db.Column(Integer, db.ForeignKey('family.id'), nullable=False)
+    role_in_family = db.Column(String(64), default='member')  # e.g., 'owner', 'co-owner', 'member'
+
+    # Relationships
+    family = so.relationship("Family", backref="family_associations", overlaps="members")
+    user = so.relationship("User", backref="user_associations", overlaps="families")
+
+    # Define unique constraint to prevent duplicate user-family entries
+    __table_args__ = (db.UniqueConstraint('user_id', 'family_id', name='_user_family_uc'),)
+
+
 
 
 ## VEHICLES

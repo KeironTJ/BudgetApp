@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="customdiv">
+    <h1>Admin - Families</h1>
+</div>
+
+<div class="customdiv">
+    <h2>View all families</h2>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Family Name</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for family in families %}
+                <tr>
+                    <td>{{ family.id }}</td>
+                    <td>{{ family.name }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="customdiv">
+    <h2>View all family members</h2>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Family ID</th>
+                <th>Family Name</th>
+                <th>User ID</th>
+                <th>User Name</th>
+                <th>Family Role</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for family_member in family_members %}
+                <tr>
+                    <td>{{ family_member.id }}</td>
+                    <td>{{ family_member.family_id }}</td>
+                    <td>{{ family_member.family.name }}</td>
+                    <td>{{ family_member.user_id }}</td>
+                    <td>{{ family_member.user.username }}</td>
+                    <td>{{ family_member.role_in_family }}</td>
+                    <td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+                
+<div>
+    <a href="{{ url_for('admin.admin_home') }}" class="btn btn-primary">Go back</a>
+
+</div>
+
+
+{% endblock %}

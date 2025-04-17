@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title">My Family - {{ family.name }} </h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Member Name</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in family.members %}
+                            <tr>
+                                <td>{{ member.username }}</td>
+                                <td>
+                                    {% set fm = member.family_members | selectattr('family_id', 'equalto', family.id) | first %}
+                                    {{ fm.role_in_family if fm }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

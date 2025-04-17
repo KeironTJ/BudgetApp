@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm 
-from wtforms import StringField, PasswordField, BooleanField, SubmitField 
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, RadioField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError 
 from app import db
 import sqlalchemy as sa 
@@ -21,6 +21,15 @@ class RegistrationForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     password2 = PasswordField(
         'Repeat Password', validators=[DataRequired(), EqualTo('password')])
+    
+    create_or_join = RadioField(
+        'Family Option',
+        choices=[('create', 'Create a New Family'), ('join', 'Join an Existing Family')],
+        validators=[DataRequired()]
+    )
+
+    family_name = StringField('Family Name', validators=[], default='')
+    invitation_code = StringField('Invitation Code', validators=[], default='')
     submit = SubmitField('Register')
 
     def validate_username(self, username):
@@ -34,3 +43,11 @@ class RegistrationForm(FlaskForm):
             User.email == email.data))
         if user is not None:
             raise ValidationError('Please use a different email address.')
+        
+    def validate_family_name(self, family_name):
+        if self.create_or_join.data == 'create' and not family_name.data:
+            raise ValidationError('Family Name is required when creating a new family.')
+
+    def validate_invitation_code(self, invitation_code):
+        if self.create_or_join.data == 'join' and not invitation_code.data:
+            raise ValidationError('Invitation Code is required when joining a family.')

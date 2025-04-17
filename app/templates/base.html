@@ -46,18 +46,35 @@
                             <a class="nav-link" aria-current="page" href="{{ url_for('auth.login') }}">Login</a>
                         </li>
                     {% else %}
+
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="{{ url_for('main.user_profile', username=current_user.username) }}">{{ current_user.username }}</a>
+                        <a class="nav-link" aria-current="page" href="{{ url_for('main.user_profile', username=current_user.username) }}">{{ current_user.username}}</a>
                     </li>
-                        {% if current_user.is_admin() %}
-                            <li class="nav-item">
-                                <a class="nav-link" aria-current="page" href="{{ url_for('admin.admin_home') }}">Admin</a>
-                            </li>
-                        {% endif %}
+
+                    <li class="nav-item{% if current_user.families|length > 1 %} dropdown{% endif %}">
+                        {% if current_user.families|length > 1 %}
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                My Families
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                {% for family in current_user.families %}
+                                    <li><a class="dropdown-item" href="{{ url_for('family_manager.family_home', family_name=family.name ) }}">{{ family.name }}</a></li>
+                                {% endfor %}
+                            {% else %}
+                                <a class="nav-link" aria-current="page" href="{{ url_for('family_manager.family_home', family_name=current_user.families[0].name if current_user.families else '' ) }}">My Family</a>
+                            {% endif %}
+                    </li>
+
+                    {% if current_user.is_admin() %}
+                        <li class="nav-item">
+                            <a class="nav-link" aria-current="page" href="{{ url_for('admin.admin_home') }}">Admin</a>
+                        </li>
+                    {% endif %}
                         <li class="nav-item">
                             <a class="nav-link" aria-current="page" href="{{ url_for('auth.logout') }}">Logout</a>
                         </li>
                     {% endif %}
+
                 </ul>
             </div>
         </div>

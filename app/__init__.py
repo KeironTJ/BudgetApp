@@ -52,6 +52,9 @@ def create_app(config_class=Config):
 
     from app.meal_planner import bp as meal_planner_bp
     app.register_blueprint(meal_planner_bp)
+
+    from app.family_manager import bp as family_manager_bp
+    app.register_blueprint(family_manager_bp)
     
 
     from app.vehicle import bp as vehicle_bp
