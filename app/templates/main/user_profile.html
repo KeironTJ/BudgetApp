@@ -9,41 +9,62 @@
                     <h3 class="card-title">User Profile</h3>
                 </div>
                 <div class="card-body">
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username:</label>
-                        <input type="text" class="form-control-plaintext" id="username" value="{{ user.username }}" readonly>
+                    <h5 class="mb-3">Personal Information</h5>
+                    <div class="mb-3 row">
+                        <label for="username" class="col-sm-4 col-form-label fw-bold">Username:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control-plaintext" id="username" value="{{ user.username }}" readonly>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="email" class="col-sm-4 col-form-label fw-bold">Email:</label>
+                        <div class="col-sm-8">
+                            <input type="email" class="form-control-plaintext" id="email" value="{{ user.email }}" readonly>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="first_name_display" class="col-sm-4 col-form-label fw-bold">First Name:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control-plaintext" id="first_name_display" value="{{ user.first_name or 'Not provided' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="last_name_display" class="col-sm-4 col-form-label fw-bold">Last Name:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control-plaintext" id="last_name_display" value="{{ user.last_name or 'Not provided' }}" readonly>
+                        </div>
+                    </div>
+
+                    <h5 class="mt-4 mb-3">Contact Information</h5>
+                    <div class="mb-3 row">
+                        <label for="primary_phone_number_display" class="col-sm-4 col-form-label fw-bold">Primary Phone:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control-plaintext" id="primary_phone_number_display" value="{{ user.primary_phone_number or 'Not provided' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="secondary_phone_number_display" class="col-sm-4 col-form-label fw-bold">Secondary Phone:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control-plaintext" id="secondary_phone_number_display" value="{{ user.secondary_phone_number or 'Not provided' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="address_display" class="col-sm-4 col-form-label fw-bold">Address:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control-plaintext" id="address_display" value="{{ user.address or 'Not provided' }}" readonly>
+                            <small class="form-text text-muted">Address can be updated on a separate page.</small>
+                        </div>
+                    </div>
+
+                    <h5 class="mt-4 mb-3">Other Details</h5>
+                    <div class="mb-3 row">
+                        <label for="dob_display" class="col-sm-4 col-form-label fw-bold">Date of Birth:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control-plaintext" id="dob_display" value="{{ user.dob.strftime('%d-%m-%Y') if user.dob else 'Not provided' }}" readonly>
+                        </div>
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email:</label>
-                        <input type="email" class="form-control-plaintext" id="email" value="{{ user.email }}" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="first_name_display" class="form-label">First Name:</label>
-                        <input type="text" class="form-control-plaintext" id="first_name_display" value="{{ user.first_name or 'Not provided' }}" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="last_name_display" class="form-label">Last Name:</label>
-                        <input type="text" class="form-control-plaintext" id="last_name_display" value="{{ user.last_name or 'Not provided' }}" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="primary_phone_number_display" class="form-label">Primary Phone Number:</label>
-                        <input type="text" class="form-control-plaintext" id="primary_phone_number_display" value="{{ user.primary_phone_number or 'Not provided' }}" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="secondary_phone_number_display" class="form-label">Secondary Phone Number:</label>
-                        <input type="text" class="form-control-plaintext" id="secondary_phone_number_display" value="{{ user.secondary_phone_number or 'Not provided' }}" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="address_display" class="form-label">Address:</label>
-                        <input type="text" class="form-control-plaintext" id="address_display" value="{{ user.address or 'Not provided' }}" readonly>
-                        <small class="form-text text-muted">Address can be updated on a separate page.</small>
-                    </div>
-                    <div class="mb-3">
-                        <label for="dob_display" class="form-label">Date of Birth:</label>
-                        <input type="text" class="form-control-plaintext" id="dob_display" value="{{ user.dob.strftime('%d-%m-%Y') if user.dob else 'Not provided' }}" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Roles:</label>
+                        <label class="form-label fw-bold">Roles:</label>
                         {% if user.roles %}
                             <ul class="list-unstyled">
                                 {% for role in user.roles %}
@@ -63,9 +84,9 @@
                                     ✏️ Edit Profile
                                 </button>
                             {% endif %}
-                            </div>
+                        </div>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
@@ -127,7 +148,5 @@
         </div>
     </div>
 </div>
-
-
 
 {% endblock %}
