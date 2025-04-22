@@ -1,6 +1,6 @@
 from app.chat import bp
 from flask import render_template, request, redirect, url_for, flash, jsonify
-from app.models import Message
+from app.models import Message, User, Family
 from app.chat.forms import MessageForm
 from flask_login import login_required, current_user
 from app import db, socketio
@@ -17,7 +17,13 @@ def familychat():
         return jsonify({'status': 'success'})
 
     # Load full message history **only on page load** (not during message sending)
-    messages = Message.query.order_by(Message.timestamp.asc()).all()
+    #messages = Message.query.order_by(Message.timestamp.asc()).all()
+
+    user_families = current_user.families  # Assuming this is correctly set up
+    messages = Message.query.filter(Message.user.has(User.families.any(Family.id.in_([fam.id for fam in user_families])))).order_by(Message.timestamp.asc()).all()
+
+
+
     return render_template('chat/familychat.html', 
                             title='Family Chat',
                             form=form,
@@ -30,7 +36,11 @@ def load_messages():
     if not last_message_id:
         return jsonify({'error': 'Invalid message ID'}), 400
 
-    messages = Message.query.filter(Message.id < last_message_id).order_by(Message.timestamp.asc()).limit(10).all()
+    user_families = current_user.families
+    messages = Message.query.filter(
+        Message.id < last_message_id,
+        Message.user.has(User.families.any(Family.id.in_([fam.id for fam in user_families]))),
+    ).order_by(Message.timestamp.asc()).limit(10).all()
 
     return jsonify([{ 
         'id': msg.id, 

@@ -14,6 +14,7 @@
             <tr>
                 <th>ID</th>
                 <th>Family Name</th>
+                <th>Invite Code</th>
             </tr>
         </thead>
 
@@ -22,6 +23,7 @@
                 <tr>
                     <td>{{ family.id }}</td>
                     <td>{{ family.name }}</td>
+                    <td>{{ family.invitation_code }}</td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -58,6 +60,78 @@
         </tbody>
     </table>
 </div>
+
+<!-- Add Family Form -->
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-body p-4">
+                    <div class="customdiv">
+                        <h2>Add Family</h2>
+                        <!-- Add Family Form -->
+                        <form method="POST" action="{{ url_for('admin.add_family') }}">
+                            <div class="mb-3">
+                                <label for="family_name" class="form-label">Family Name</label>
+                                <input type="text" class="form-control" id="family_name" name="family_name" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Family</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add User to Family -->
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-body p-4">
+                    <div class="customdiv">
+                        <h2>Add User to Family</h2>
+                        <!-- Add User to Family Form -->
+                        <form method="POST" action="{{ url_for('admin.add_user_to_family') }}">
+                            <div class="mb-3">
+                                <label for="family_id" class="form-label">Family</label>
+                                <select class="form-control" id="family_id" name="family_id" required>
+                                    {% for family in families %}
+                                        <option value="{{ family.id }}">{{ family.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        
+                            <div class="mb-3">
+                                <label for="user_id" class="form-label">User</label>
+                                <select class="form-control" id="user_id" name="user_id" required>
+                                    {% for user in users %}
+                                        <option value="{{ user.id }}">{{ user.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        
+                            <div class="mb-3">
+                                <label for="role_in_family" class="form-label">Role</label>
+                                <select class="form-control" id="role_in_family" name="role_in_family" required>
+                                    <option value="owner">Owner</option>
+                                    <option value="co-owner">Co-Owner</option>
+                                    <option value="member">Member</option>
+                                </select>
+                            </div>
+                        
+                            <button type="submit" class="btn btn-primary">Add User to Family</button>
+                        </form>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br>
                 
 <div>
     <a href="{{ url_for('admin.admin_home') }}" class="btn btn-primary">Go back</a>

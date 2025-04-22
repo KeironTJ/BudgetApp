@@ -4,6 +4,7 @@ import sqlalchemy.orm as so
 from flask_login import UserMixin 
 from app import db, login
 from werkzeug.security import generate_password_hash, check_password_hash
+import uuid
 
 
 @login.user_loader
@@ -118,6 +119,18 @@ class Family(db.Model):
 
     def __repr__(self):
         return f'<Family {self.name}>'
+    
+    def generate_invitation_code(self):
+        """Generate a unique invitation code for this family."""
+        self.invitation_code = str(uuid.uuid4())
+
+    def __init__(self, name, owner_id):
+        """Ensure an invitation code is always set upon initialization."""
+        self.name = name
+        self.owner_id = owner_id
+        self.generate_invitation_code()
+
+
 
 
 # Association Table for Family Members

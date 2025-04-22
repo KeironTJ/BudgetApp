@@ -1,6 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
 
+<style>
+    #inviteCode {
+        display: inline-block;
+        font-family: monospace; /* Keeps UUID legible */
+        font-weight: bold;
+    }
+</style>
+
+
+<script>
+    function copyInviteCode() {
+        var codeElement = document.getElementById("inviteCode");
+        var codeText = codeElement.textContent.trim();
+    
+        navigator.clipboard.writeText(codeText).then(() => {
+            alert("Invitation code copied!");
+    
+            // Manually reset the text after copying to ensure it persists
+            setTimeout(() => {
+                document.getElementById("inviteCode").textContent = codeText;
+            }, 50);
+        }).catch(err => {
+            console.error("Error copying code: ", err);
+        });
+    }
+</script>
+    
+
+
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -9,6 +38,8 @@
                     <h3 class="card-title">My Family - {{ family.name }} </h3>
                 </div>
                 <div class="card-body">
+                    
+                
                     <table class="table table-bordered table-striped">
                         <thead>
                             <tr>
@@ -28,6 +59,13 @@
                             {% endfor %}
                         </tbody>
                     </table>
+
+                    <div class="card-body text-center">
+                        <strong>Invitation Code:</strong>
+                        <span id="inviteCode" class="badge bg-success p-2">{{ family.invitation_code }}</span>
+                        <button class="btn btn-sm btn-outline-primary" onclick="copyInviteCode()">Copy</button>
+                    </div>
+
                 </div>
             </div>
         </div>

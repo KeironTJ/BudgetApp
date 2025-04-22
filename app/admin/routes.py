@@ -64,6 +64,8 @@ def admin_users():
                            user_roles=user_roles,
                            assignuserroleform=assignuserroleform)
 
+
+
 ##Messages
 # Displays the admin messages page
 @bp.route('/admin_messages', methods=['GET', 'POST'])
@@ -76,6 +78,8 @@ def admin_messages():
     return render_template('admin/admin_messages.html', 
                            title='Admin Messages',
                            messages=messages)
+
+
 
 
 ## MealPlanner
@@ -147,3 +151,45 @@ def admin_families():
                            users=users,
                            families=families,
                            family_members=family_members)
+
+@bp.route('/add_family', methods=['POST'])
+@login_required
+def add_family():
+    family_name = request.form.get("family_name")
+
+    if family_name:
+        family = Family(name=family_name, owner_id=current_user.id) 
+        db.session.add(family)
+        db.session.commit()
+        flash("Family added successfully!", "success")
+    else:
+        flash("Invalid family name.", "danger")
+
+    return redirect(url_for('admin.admin_families'))
+
+
+
+@bp.route('/add_user_to_family', methods=['POST'])
+@login_required
+def add_user_to_family():
+    user_id = request.form.get("user_id")
+    family_id = request.form.get("family_id")
+    role_in_family = request.form.get("role_in_family")
+
+    user = User.query.get(user_id)
+    family = Family.query.get(family_id)
+
+    if user and family and role_in_family in ['owner', 'co-owner', 'member']:
+        # Check if user is already in the family
+        existing_entry = FamilyMembers.query.filter_by(user_id=user_id, family_id=family_id).first()
+        if existing_entry:
+            flash("User is already part of this family.", "warning")
+        else:
+            new_entry = FamilyMembers(user_id=user_id, family_id=family_id, role_in_family=role_in_family)
+            db.session.add(new_entry)
+            db.session.commit()
+            flash(f"User added as {role_in_family} successfully!", "success")
+    else:
+        flash("Invalid user, family, or role selection.", "danger")
+
+    return redirect(url_for('admin.admin_families'))

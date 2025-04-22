@@ -26,7 +26,7 @@
                     <td>{{ message.user_id }}</td>
                     <td>{{ message.content }}</td>
                     <td>{{ message.timestamp.strftime("%d-%m-%Y %H:%M:%S") }}</td>
-                    <td>{{ message.deleted_status }}</td>
+                    <td>{{ message.deleted }}</td>
                     <td>
                         <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editMessageModal{{ message.id }}">
                             ✏️

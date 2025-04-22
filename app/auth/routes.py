@@ -74,14 +74,17 @@ def register():
         create_or_join = form.create_or_join.data
         if create_or_join == 'create':
             family_name = form.family_name.data
-            invitation_code = str(uuid.uuid4())
-            new_family = Family(name=family_name, owner_id=user.id, invitation_code=invitation_code)
+            new_family = Family(name=family_name, owner_id=user.id)  # Automatically generates invitation_code
             db.session.add(new_family)
             db.session.commit()
+
             family_member = FamilyMembers(user_id=user.id, family_id=new_family.id, role_in_family='owner')
             db.session.add(family_member)
             db.session.commit()
-            flash(f"Family '{family_name}' created successfully! Share this invitation code: {invitation_code}", 'info')
+
+            flash(f"Family '{family_name}' created successfully! Share this invitation code: {new_family.invitation_code}", 'info')
+            
+
         elif create_or_join == 'join':
             invitation_code = form.invitation_code.data
             family = Family.query.filter_by(invitation_code=invitation_code).first()
