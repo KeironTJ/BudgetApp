@@ -5,11 +5,13 @@ from app.meal_planner.forms import AddMealForm
 from flask_login import login_required, current_user
 from app import db
 from datetime import datetime, timedelta
+from app.decorators import active_family_required
 
 
 ## Meal Planner Routes
 @bp.route('/mealplanner', methods=['GET', 'POST'])
 @login_required
+@active_family_required
 def mealplanner():
     # Get today's date
     today = datetime.today()
@@ -47,6 +49,7 @@ def mealplanner():
 
 @bp.route('/meal_details/<int:meal_id>', methods=['GET', 'POST'])
 @login_required
+@active_family_required
 def meal_details(meal_id):
     meal = MealPlan.query.get_or_404(meal_id)
     editmealform = AddMealForm(obj=meal)

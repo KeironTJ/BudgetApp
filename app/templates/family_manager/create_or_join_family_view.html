@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">Create or Join Family</h2>
+                    <form class="customform" action="" method="post" novalidate>
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.create_or_join.label }}</label><br>
+                            {% for subfield in form.create_or_join %}
+                            <div class="form-check form-check-inline">
+                                {{ subfield(class="form-check-input") }}
+                                {{ subfield.label(class="form-check-label") }}
+                            </div>
+                            {% endfor %}
+                            {% for error in form.create_or_join.errors %}
+                            <div class="form-text text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div id="create_family_fields" style="display:none;">
+                            <div class="mb-3">
+                                {{ form.family_name.label(class="form-label") }}
+                                {{ form.family_name(class="form-control", size=64) }}
+                                {% for error in form.family_name.errors %}
+                                <div class="form-text text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div id="join_family_fields" style="display:none;">
+                            <div class="mb-3">
+                                {{ form.invitation_code.label(class="form-label") }}
+                                {{ form.invitation_code(class="form-control", size=64) }}
+                                {% for error in form.invitation_code.errors %}
+                                <div class="form-text text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+                    
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const createRadio = document.querySelector('#create_or_join-0');
+        const joinRadio = document.querySelector('#create_or_join-1');
+        const createFields = document.getElementById('create_family_fields');
+        const joinFields = document.getElementById('join_family_fields');
+
+        function toggleFamilyFields() {
+            if (createRadio.checked) {
+                createFields.style.display = 'block';
+                joinFields.style.display = 'none';
+            } else if (joinRadio.checked) {
+                createFields.style.display = 'none';
+                joinFields.style.display = 'block';
+            } else {
+                createFields.style.display = 'none';
+                joinFields.style.display = 'none';
+            }
+        }
+
+        if (createRadio && joinRadio) {
+            createRadio.addEventListener('change', toggleFamilyFields);
+            joinRadio.addEventListener('change', toggleFamilyFields);
+            toggleFamilyFields(); // Initial state
+        }
+    });
+</script>
+{% endblock %}

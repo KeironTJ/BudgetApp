@@ -1,9 +1,9 @@
-# create imports
+
 from app import db
 from app.models import User, Role, UserRoles, MealPlan, Message, Family, FamilyMembers
 from flask import render_template, flash, redirect, url_for, request, session, jsonify
 from flask_login import login_required, current_user 
-from app.admin.decorators import admin_required
+from app.decorators import admin_required
 from app.admin import bp
 from app.admin.forms import AddMealForm, AssignRoleForm
 

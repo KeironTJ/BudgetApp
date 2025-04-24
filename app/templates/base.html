@@ -54,16 +54,22 @@
                     <li class="nav-item{% if current_user.families|length > 1 %} dropdown{% endif %}">
                         {% if current_user.families|length > 1 %}
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                My Families
+                                {{ current_user.get_active_family().name if current_user.get_active_family() else 'Select Family' }}
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 {% for family in current_user.families %}
-                                    <li><a class="dropdown-item" href="{{ url_for('family_manager.family_home', family_name=family.name ) }}">{{ family.name }}</a></li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('family_manager.family_home', family_name=family.name) }}">
+                                            {{ family.name }}
+                                        </a>
+                                    </li>
                                 {% endfor %}
-                            {% else %}
-                                <a class="nav-link" aria-current="page" href="{{ url_for('family_manager.family_home', family_name=current_user.families[0].name if current_user.families else '' ) }}">My Family</a>
-                            {% endif %}
-                        </ul>   
+                            </ul>
+                        {% else %}
+                            <a class="nav-link" aria-current="page" href="{% if current_user.families|length == 0 %}{{ url_for('family_manager.create_or_join_family_view') }}{% else %}{{ url_for('family_manager.family_home', family_name=current_user.families[0].name) }}{% endif %}">
+                                My Family
+                            </a>
+                        {% endif %}
                     </li>
 
                     {% if current_user.is_admin() %}

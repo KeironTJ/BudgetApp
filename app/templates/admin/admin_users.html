@@ -42,6 +42,7 @@
                 <th>Secondary Phone Number</th>
                 <th>Address</th>
                 <th>DOB</th>
+                <th>Active Family ID</th>
             </tr>
         </thead>
         <tbody>
@@ -67,6 +68,7 @@
                             {{ user.dob }}
                         {% endif %}
                     </td>
+                    <td>{{ user.active_family_id }}</td>
                         
                 </tr>
             {% endfor %}

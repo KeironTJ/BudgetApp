@@ -1,12 +1,12 @@
 from app import db
 from app.auth.forms import LoginForm, RegistrationForm
 from app.models import User, UserRoles, Family, FamilyMembers
-import uuid
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import current_user, login_user, logout_user 
 import sqlalchemy as sa 
 from urllib.parse import urlsplit
 from app.auth import bp
+from app.family_manager.helper import create_or_join_family
 
 ## Authentication Routes
 ### The login view function
@@ -48,7 +48,6 @@ def logout():
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
-
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     
@@ -61,46 +60,24 @@ def register():
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
 
-        #obtain user id
-        user = db.session.query(User).filter_by(username=form.username.data).first()
-
         # Assign the user to the default role (user)
         user_role = UserRoles(user_id=user.id, role_id=2)
         db.session.add(user_role)
         db.session.commit()
         flash('You have been assigned the default user role.')
 
-        # Check if the user wants to create or join a family
+        # Handle family creation or joining
         create_or_join = form.create_or_join.data
-        if create_or_join == 'create':
-            family_name = form.family_name.data
-            new_family = Family(name=family_name, owner_id=user.id)  # Automatically generates invitation_code
-            db.session.add(new_family)
-            db.session.commit()
+        family_name = form.family_name.data if create_or_join == 'create' else None
+        invitation_code = form.invitation_code.data if create_or_join == 'join' else None
 
-            family_member = FamilyMembers(user_id=user.id, family_id=new_family.id, role_in_family='owner')
-            db.session.add(family_member)
-            db.session.commit()
+        if create_or_join_family(user, create_or_join, family_name, invitation_code):
+            login_user(user)
+            return redirect(url_for('main.dashboard'))
 
-            flash(f"Family '{family_name}' created successfully! Share this invitation code: {new_family.invitation_code}", 'info')
-            
+        # If family creation/joining fails, redirect back to registration
+        return redirect(url_for('auth.register'))
 
-        elif create_or_join == 'join':
-            invitation_code = form.invitation_code.data
-            family = Family.query.filter_by(invitation_code=invitation_code).first()
-            if family:
-                family_member = FamilyMembers(user_id=user.id, family_id=family.id)
-                db.session.add(family_member)
-                db.session.commit()
-                flash(f"You have successfully joined the '{family.name}' family!", 'info')
-            else:
-                flash("Invalid invitation code.", 'warning')
-
-        db.session.commit() # Commit the user role and family association
-        login_user(user)
-
-        return redirect(url_for('main.dashboard'))
-    
     return render_template('auth/register.html', 
                            title='Register', 
                            form=form)

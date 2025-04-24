@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title">Choose Family</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('family_manager.family_choose') }}">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.family.label(class="form-label") }}
+                            {{ form.family(class="form-select") }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Set Active Family</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+{% endblock %}

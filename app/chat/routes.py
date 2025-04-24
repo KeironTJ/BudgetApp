@@ -5,10 +5,12 @@ from app.chat.forms import MessageForm
 from flask_login import login_required, current_user
 from app import db, socketio
 from datetime import datetime, timedelta
+from app.decorators import active_family_required
 
 ## Messaging Routes
 @bp.route('/familychat', methods=['GET', 'POST'])
 @login_required
+@active_family_required
 def familychat():
     form = MessageForm()
 
@@ -31,6 +33,7 @@ def familychat():
 
 @bp.route('/load_messages')
 @login_required
+@active_family_required
 def load_messages():
     last_message_id = request.args.get("last_message_id", type=int)
     if not last_message_id:
@@ -53,6 +56,7 @@ def load_messages():
 
 @bp.route('/delete_message/<int:message_id>', methods=['POST'])
 @login_required
+@active_family_required
 def delete_message(message_id):
     message = Message.query.get_or_404(message_id)
 

@@ -4,10 +4,12 @@ from app.models import ActivityPlan, FamilyMembers
 from app.activity_planner.forms import AddActivityForm
 from flask_login import login_required, current_user
 from app import db
+from app.decorators import active_family_required
 
 ## Family Activity Planner Routes
 @bp.route('/activityplanner', methods=['GET', 'POST'])
 @login_required
+@active_family_required
 def activityplanner():
     addactivityform = AddActivityForm()
 
@@ -48,6 +50,7 @@ def activityplanner():
 
 @bp.route('/activity_details/<int:id>', methods=['GET', 'POST'])
 @login_required
+@active_family_required
 def activity_details(id):
 
     activity = ActivityPlan.query.get_or_404(id)
@@ -66,6 +69,7 @@ def activity_details(id):
 
 @bp.route('/delete_activity/<int:id>', methods=['GET', 'POST'])
 @login_required
+@active_family_required
 def delete_activity(id):
     activity = ActivityPlan.query.get_or_404(id)
     db.session.delete(activity)
