@@ -50,7 +50,7 @@ def create_or_join_family(user, create_or_join, family_name=None, invitation_cod
             db.session.add(family_member)
             db.session.commit()
 
-            user.set_active_family(new_family.id)
+            user.set_active_family(family.id)
             db.session.commit()
 
             flash(f"You have successfully joined the '{family.name}' family!", "info")
