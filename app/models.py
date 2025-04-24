@@ -25,7 +25,7 @@ class User(UserMixin, db.Model):
     secondary_phone_number = db.Column(String(20), nullable=True)  
     dob = db.Column(DateTime, nullable=True)
     profile_picture = db.Column(String(256), nullable=True)  #TODO: Add URL or path to the profile picture 
-
+    active_family_id = db.Column(Integer, db.ForeignKey('family.id'), nullable=True) 
 
     #Relationships
     roles = so.relationship('Role', secondary='user_roles', back_populates='users')
@@ -56,6 +56,18 @@ class User(UserMixin, db.Model):
         role = db.session.query(Role).filter_by(name=role_name).first()
         if role and role in self.roles:
             self.roles.remove(role)  
+            return True
+        return False
+    
+    def get_active_family(self):
+        if self.active_family_id:
+            return Family.query.get(self.active_family_id)
+        return None
+
+    def set_active_family(self, family_id):
+        family = Family.query.get(family_id)
+        if family and family in self.families:
+            self.active_family_id = family_id
             return True
         return False
     

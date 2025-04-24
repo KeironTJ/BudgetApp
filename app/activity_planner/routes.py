@@ -1,6 +1,6 @@
 from app.activity_planner import bp
 from flask import render_template, redirect, url_for, flash
-from app.models import ActivityPlan
+from app.models import ActivityPlan, FamilyMembers
 from app.activity_planner.forms import AddActivityForm
 from flask_login import login_required, current_user
 from app import db
@@ -10,9 +10,15 @@ from app import db
 @login_required
 def activityplanner():
     addactivityform = AddActivityForm()
-    activities = ActivityPlan.query.order_by(ActivityPlan.activity_start_date.asc(),
-                                             ActivityPlan.activity_start_time.asc()
-                                             ).all()
+
+    # Get the family IDs the current user belongs to
+    family_ids = [family.id for family in current_user.families]
+
+    # Filter activities by family
+    activities = ActivityPlan.query.filter(ActivityPlan.user_id.in_(
+        db.session.query(FamilyMembers.user_id).filter(FamilyMembers.family_id.in_(family_ids))
+    )).order_by(ActivityPlan.activity_start_date.asc(),
+                ActivityPlan.activity_start_time.asc()).all()
 
     if addactivityform.validate_on_submit():
 
