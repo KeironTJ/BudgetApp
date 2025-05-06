@@ -1,5 +1,5 @@
 from app import db, create_app
-from app.models import User, UserRoles, Role, VehicleData, FuelEntryLog
+from app.models import User, UserRoles, Role
 from dotenv import load_dotenv
 
 load_dotenv(".flaskenv") # FOR DEVELOPMENT ONLY

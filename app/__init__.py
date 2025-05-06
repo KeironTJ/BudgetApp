@@ -56,10 +56,6 @@ def create_app(config_class=Config):
     from app.family_manager import bp as family_manager_bp
     app.register_blueprint(family_manager_bp)
     
-
-    from app.vehicle import bp as vehicle_bp
-    app.register_blueprint(vehicle_bp)
-
     return app
     
 from app import models
