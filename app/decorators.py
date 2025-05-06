@@ -11,7 +11,7 @@ def active_family_required(f):
         if not current_user.get_active_family():
             flash("Please select an active family to continue.", "warning")
             # Store the intended destination in the query string
-            return redirect(url_for('family_manager.family_choose', next=request.url))
+            return redirect(url_for('family_manager.family_choose'))
         return f(*args, **kwargs)
     return decorated_function
 
