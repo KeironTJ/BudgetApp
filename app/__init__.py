@@ -31,9 +31,12 @@ def create_app(config_class=Config):
     else:
         app.config.from_object('config.ProductionConfig')
 
-    # Debugging to confirm correct config is loaded
+    # Debugging to confirm correct config is loaded without leaking credentials
+    masked_uri = app.config['SQLALCHEMY_DATABASE_URI']
+    if masked_uri and '@' in masked_uri:
+        masked_uri = masked_uri.split('@', 1)[-1]
     print(f"FLASK_ENV: {flask_env}")
-    print(f"Database URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
+    print(f"Database backend: {masked_uri}")
 
 
     db.init_app(app)
