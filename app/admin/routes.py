@@ -14,7 +14,13 @@ from flask import render_template, flash, redirect, url_for, request, session, j
 from flask_login import login_required, current_user 
 from app.decorators import admin_required
 from app.admin import bp
-from app.admin.forms import AddMealForm, AssignRoleForm, DeleteUserForm
+from app.admin.forms import (
+    AddMealForm,
+    AssignRoleForm,
+    DeleteUserForm,
+    DeleteFamilyForm,
+    TransferFamilyOwnershipForm,
+)
 
 
 ## Admin Routes
@@ -192,12 +198,23 @@ def admin_families():
     users = db.session.query(User).all()
     families = db.session.query(Family).all()
     family_members = db.session.query(FamilyMembers).all()
+    delete_family_form = DeleteFamilyForm()
+    transfer_family_form = TransferFamilyOwnershipForm()
+
+    family_choices = [(family.id, family.name) for family in families]
+    delete_family_form.family_id.choices = family_choices
+    transfer_family_form.family_id.choices = family_choices
+
+    user_choices = [(user.id, user.username) for user in users]
+    transfer_family_form.new_owner_id.choices = user_choices
 
     return render_template('admin/admin_families.html',
                            title='Admin Families',
                            users=users,
                            families=families,
-                           family_members=family_members)
+                           family_members=family_members,
+                           delete_family_form=delete_family_form,
+                           transfer_family_form=transfer_family_form)
 
 @bp.route('/add_family', methods=['POST'])
 @login_required
@@ -239,4 +256,75 @@ def add_user_to_family():
     else:
         flash("Invalid user, family, or role selection.", "danger")
 
+    return redirect(url_for('admin.admin_families'))
+
+
+@bp.route('/admin_families/delete', methods=['POST'])
+@login_required
+@admin_required
+def delete_family():
+    form = DeleteFamilyForm()
+    families = db.session.query(Family).all()
+    form.family_id.choices = [(family.id, family.name) for family in families]
+
+    if not form.validate_on_submit():
+        flash('Invalid family selection.', 'danger')
+        return redirect(url_for('admin.admin_families'))
+
+    family = db.session.get(Family, form.family_id.data)
+    if not family:
+        flash('Family not found.', 'danger')
+        return redirect(url_for('admin.admin_families'))
+
+    FamilyMembers.query.filter_by(family_id=family.id).delete(synchronize_session=False)
+    affected_users = db.session.query(User).filter_by(active_family_id=family.id).all()
+    for user in affected_users:
+        user.active_family_id = None
+
+    db.session.delete(family)
+    db.session.commit()
+    flash('Family deleted successfully.', 'success')
+    return redirect(url_for('admin.admin_families'))
+
+
+@bp.route('/admin_families/reassign_owner', methods=['POST'])
+@login_required
+@admin_required
+def reassign_family_owner():
+    form = TransferFamilyOwnershipForm()
+    families = db.session.query(Family).all()
+    users = db.session.query(User).all()
+    form.family_id.choices = [(family.id, family.name) for family in families]
+    form.new_owner_id.choices = [(user.id, user.username) for user in users]
+
+    if not form.validate_on_submit():
+        flash('Invalid submission. Please select a family and owner.', 'danger')
+        return redirect(url_for('admin.admin_families'))
+
+    family = db.session.get(Family, form.family_id.data)
+    new_owner = db.session.get(User, form.new_owner_id.data)
+
+    if not family or not new_owner:
+        flash('Invalid family or user selection.', 'danger')
+        return redirect(url_for('admin.admin_families'))
+
+    membership = FamilyMembers.query.filter_by(user_id=new_owner.id, family_id=family.id).first()
+    if not membership:
+        flash('Selected user must be a member of the family before ownership transfer.', 'danger')
+        return redirect(url_for('admin.admin_families'))
+
+    previous_owner_id = family.owner_id
+    family.owner_id = new_owner.id
+    membership.role_in_family = 'owner'
+
+    if previous_owner_id and previous_owner_id != new_owner.id:
+        previous_membership = FamilyMembers.query.filter_by(user_id=previous_owner_id, family_id=family.id).first()
+        if previous_membership:
+            previous_membership.role_in_family = 'member'
+
+    if not new_owner.active_family_id:
+        new_owner.active_family_id = family.id
+
+    db.session.commit()
+    flash('Family owner reassigned successfully.', 'success')
     return redirect(url_for('admin.admin_families'))

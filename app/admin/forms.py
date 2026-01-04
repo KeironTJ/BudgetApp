@@ -1,5 +1,14 @@
 from flask_wtf import FlaskForm 
-from wtforms import TextAreaField, DateField, SubmitField, SelectField, StringField, BooleanField, PasswordField, ValidationError
+from wtforms import (
+    TextAreaField,
+    DateField,
+    SubmitField,
+    SelectField,
+    StringField,
+    BooleanField,
+    PasswordField,
+    ValidationError,
+)
 from wtforms.validators import DataRequired, Length
 from app.models import User, Role
 from app import db
@@ -55,3 +64,14 @@ class AssignRoleForm(FlaskForm):
 
 class DeleteUserForm(FlaskForm):
     submit = SubmitField('Delete')
+
+
+class DeleteFamilyForm(FlaskForm):
+    family_id = SelectField('Family', validators=[DataRequired()], choices=[], coerce=int)
+    submit = SubmitField('Delete Family')
+
+
+class TransferFamilyOwnershipForm(FlaskForm):
+    family_id = SelectField('Family', validators=[DataRequired()], choices=[], coerce=int)
+    new_owner_id = SelectField('New Owner', validators=[DataRequired()], choices=[], coerce=int)
+    submit = SubmitField('Reassign Owner')

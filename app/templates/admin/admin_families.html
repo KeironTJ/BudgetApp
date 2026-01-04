@@ -54,7 +54,6 @@
                     <td>{{ family_member.user_id }}</td>
                     <td>{{ family_member.user.username }}</td>
                     <td>{{ family_member.role_in_family }}</td>
-                    <td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -124,6 +123,56 @@
                             <button type="submit" class="btn btn-primary">Add User to Family</button>
                         </form>
                         
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Family -->
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-body p-4">
+                    <div class="customdiv">
+                        <h2>Delete Family</h2>
+                        <form method="POST" action="{{ url_for('admin.delete_family') }}">
+                            {{ delete_family_form.hidden_tag() }}
+                            <div class="mb-3">
+                                {{ delete_family_form.family_id.label(class="form-label") }}
+                                {{ delete_family_form.family_id(class="form-select") }}
+                            </div>
+                            {{ delete_family_form.submit(class="btn btn-danger w-100") }}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reassign Family Owner -->
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-body p-4">
+                    <div class="customdiv">
+                        <h2>Reassign Family Owner</h2>
+                        <form method="POST" action="{{ url_for('admin.reassign_family_owner') }}">
+                            {{ transfer_family_form.hidden_tag() }}
+                            <div class="mb-3">
+                                {{ transfer_family_form.family_id.label(class="form-label") }}
+                                {{ transfer_family_form.family_id(class="form-select") }}
+                            </div>
+                            <div class="mb-3">
+                                {{ transfer_family_form.new_owner_id.label(class="form-label") }}
+                                {{ transfer_family_form.new_owner_id(class="form-select") }}
+                            </div>
+                            {{ transfer_family_form.submit(class="btn btn-warning w-100") }}
+                        </form>
                     </div>
                 </div>
             </div>
