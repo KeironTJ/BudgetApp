@@ -1,11 +1,20 @@
 
 from app import db
-from app.models import User, Role, UserRoles, MealPlan, Message, Family, FamilyMembers
+from app.models import (
+    User,
+    Role,
+    UserRoles,
+    MealPlan,
+    Message,
+    Family,
+    FamilyMembers,
+    ActivityPlan,
+)
 from flask import render_template, flash, redirect, url_for, request, session, jsonify
 from flask_login import login_required, current_user 
 from app.decorators import admin_required
 from app.admin import bp
-from app.admin.forms import AddMealForm, AssignRoleForm
+from app.admin.forms import AddMealForm, AssignRoleForm, DeleteUserForm
 
 
 ## Admin Routes
@@ -30,6 +39,7 @@ def not_admin():
 @admin_required
 def admin_users():
     assignuserroleform = AssignRoleForm()
+    delete_user_form = DeleteUserForm()
 
     users = db.session.query(User).all()
     roles = db.session.query(Role).all()
@@ -62,7 +72,44 @@ def admin_users():
                            users=users,
                            roles=roles,
                            user_roles=user_roles,
-                           assignuserroleform=assignuserroleform)
+                           assignuserroleform=assignuserroleform,
+                           delete_user_form=delete_user_form)
+
+
+@bp.route('/admin_users/delete/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_user(user_id):
+    user = db.session.get(User, user_id)
+    if not user:
+        flash('User not found.', 'danger')
+        return redirect(url_for('admin.admin_users'))
+
+    if user.id == current_user.id:
+        flash('You cannot delete your own account.', 'warning')
+        return redirect(url_for('admin.admin_users'))
+
+    if user.is_admin():
+        flash('Remove admin privileges before deleting this account.', 'warning')
+        return redirect(url_for('admin.admin_users'))
+
+    if user.owned_families:
+        flash('Reassign or delete families owned by this user before deleting the account.', 'warning')
+        return redirect(url_for('admin.admin_users'))
+
+    FamilyMembers.query.filter_by(user_id=user.id).delete(synchronize_session=False)
+    Message.query.filter_by(user_id=user.id).delete(synchronize_session=False)
+    MealPlan.query.filter_by(user_id=user.id).delete(synchronize_session=False)
+    ActivityPlan.query.filter_by(user_id=user.id).delete(synchronize_session=False)
+    user.roles.clear()
+
+    if user.address:
+        db.session.delete(user.address)
+
+    db.session.delete(user)
+    db.session.commit()
+    flash('User deleted successfully.', 'success')
+    return redirect(url_for('admin.admin_users'))
 
 
 

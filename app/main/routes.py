@@ -6,8 +6,10 @@ from datetime import datetime, timedelta
 from app.models import User
 from app.main.forms import EditProfileForm
 
+
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
+@login_required
 def index():
 
     return render_template('main/index.html')

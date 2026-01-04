@@ -43,6 +43,7 @@
                 <th>Address</th>
                 <th>DOB</th>
                 <th>Active Family ID</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -69,7 +70,16 @@
                         {% endif %}
                     </td>
                     <td>{{ user.active_family_id }}</td>
-                        
+                    <td>
+                        {% if user.id != current_user.id and not user.is_admin() %}
+                            <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}" onsubmit="return confirm('Delete {{ user.username }}? This cannot be undone.');">
+                                {{ delete_user_form.hidden_tag() }}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        {% else %}
+                            <span class="text-muted">Protected</span>
+                        {% endif %}
+                    </td>                 
                 </tr>
             {% endfor %}
         </tbody>
@@ -81,6 +91,7 @@
 <div class="customdiv">
     <h2>View All User Roles</h2>
     <table class="table table-striped">
+            
         <thead>
             <tr>
                 <th>User</th>

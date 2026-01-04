@@ -51,3 +51,7 @@ class AssignRoleForm(FlaskForm):
         role_names = [role.name for role in db.session.scalars(sa.select(Role)).all()]
         if role.data not in role_names:
             raise ValidationError('Invalid role.')
+
+
+class DeleteUserForm(FlaskForm):
+    submit = SubmitField('Delete')
