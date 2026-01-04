@@ -20,6 +20,8 @@ from app.admin.forms import (
     DeleteUserForm,
     DeleteFamilyForm,
     TransferFamilyOwnershipForm,
+    CreateFamilyForm,
+    AddUserToFamilyForm,
 )
 
 
@@ -151,6 +153,8 @@ def admin_mealplanner():
                            form=form)
 
 @bp.route('/admin_add_meal', methods=['GET', 'POST'])
+@login_required
+@admin_required
 def add_meal():
     form = AddMealForm()
     if form.validate_on_submit():
@@ -170,6 +174,8 @@ def add_meal():
     return redirect(url_for('admin.admin_mealplanner'))
 
 @bp.route('/admin_edit_meal/<int:meal_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
 def edit_meal(meal_id):
     meal = MealPlan.query.get_or_404(meal_id)
     form = AddMealForm()
@@ -182,6 +188,8 @@ def edit_meal(meal_id):
     return redirect(url_for('admin.admin_mealplanner'))
 
 @bp.route('/admin_delete_meal/<int:meal_id>', methods=['POST'])
+@login_required
+@admin_required
 def delete_meal(meal_id):
     meal = MealPlan.query.get_or_404(meal_id)
     db.session.delete(meal)
@@ -198,14 +206,18 @@ def admin_families():
     users = db.session.query(User).all()
     families = db.session.query(Family).all()
     family_members = db.session.query(FamilyMembers).all()
+    create_family_form = CreateFamilyForm()
+    add_user_form = AddUserToFamilyForm()
     delete_family_form = DeleteFamilyForm()
     transfer_family_form = TransferFamilyOwnershipForm()
 
     family_choices = [(family.id, family.name) for family in families]
+    add_user_form.family_id.choices = family_choices
     delete_family_form.family_id.choices = family_choices
     transfer_family_form.family_id.choices = family_choices
 
     user_choices = [(user.id, user.username) for user in users]
+    add_user_form.user_id.choices = user_choices
     transfer_family_form.new_owner_id.choices = user_choices
 
     return render_template('admin/admin_families.html',
@@ -213,16 +225,19 @@ def admin_families():
                            users=users,
                            families=families,
                            family_members=family_members,
+                           create_family_form=create_family_form,
+                           add_user_form=add_user_form,
                            delete_family_form=delete_family_form,
                            transfer_family_form=transfer_family_form)
 
 @bp.route('/add_family', methods=['POST'])
 @login_required
+@admin_required
 def add_family():
-    family_name = request.form.get("family_name")
-
-    if family_name:
-        family = Family(name=family_name, owner_id=current_user.id) 
+    form = CreateFamilyForm()
+    if form.validate_on_submit():
+        family_name = form.family_name.data.strip()
+        family = Family(name=family_name, owner_id=current_user.id)
         db.session.add(family)
         db.session.commit()
         flash("Family added successfully!", "success")
@@ -235,26 +250,33 @@ def add_family():
 
 @bp.route('/add_user_to_family', methods=['POST'])
 @login_required
+@admin_required
 def add_user_to_family():
-    user_id = request.form.get("user_id")
-    family_id = request.form.get("family_id")
-    role_in_family = request.form.get("role_in_family")
+    form = AddUserToFamilyForm()
+    families = db.session.query(Family).all()
+    users = db.session.query(User).all()
+    form.family_id.choices = [(family.id, family.name) for family in families]
+    form.user_id.choices = [(user.id, user.username) for user in users]
 
-    user = User.query.get(user_id)
-    family = Family.query.get(family_id)
+    if not form.validate_on_submit():
+        flash("Invalid user, family, or role selection.", "danger")
+        return redirect(url_for('admin.admin_families'))
 
-    if user and family and role_in_family in ['owner', 'co-owner', 'member']:
-        # Check if user is already in the family
-        existing_entry = FamilyMembers.query.filter_by(user_id=user_id, family_id=family_id).first()
+    user = db.session.get(User, form.user_id.data)
+    family = db.session.get(Family, form.family_id.data)
+    role_in_family = form.role_in_family.data
+
+    if user and family:
+        existing_entry = FamilyMembers.query.filter_by(user_id=user.id, family_id=family.id).first()
         if existing_entry:
             flash("User is already part of this family.", "warning")
         else:
-            new_entry = FamilyMembers(user_id=user_id, family_id=family_id, role_in_family=role_in_family)
+            new_entry = FamilyMembers(user_id=user.id, family_id=family.id, role_in_family=role_in_family)
             db.session.add(new_entry)
             db.session.commit()
             flash(f"User added as {role_in_family} successfully!", "success")
     else:
-        flash("Invalid user, family, or role selection.", "danger")
+        flash("Invalid user or family selection.", "danger")
 
     return redirect(url_for('admin.admin_families'))
 

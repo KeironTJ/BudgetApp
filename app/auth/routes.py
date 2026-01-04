@@ -1,4 +1,7 @@
-from app import db
+from collections import defaultdict, deque
+from datetime import datetime, timedelta
+
+from app import db, limiter
 from app.auth.forms import LoginForm, RegistrationForm
 from app.models import User, UserRoles, Family, FamilyMembers
 from flask import render_template, redirect, url_for, flash, request, current_app
@@ -8,9 +11,38 @@ from urllib.parse import urlsplit
 from app.auth import bp
 from app.family_manager.helper import create_or_join_family
 
+FAILED_ATTEMPT_WINDOW = timedelta(minutes=10)
+FAILED_ATTEMPT_THRESHOLD = 5
+_failed_attempts = {
+    'login': defaultdict(deque),
+    'register': defaultdict(deque),
+}
+
+
+def _client_identifier() -> str:
+    forwarded_for = request.headers.get('X-Forwarded-For', '').split(',')[0].strip()
+    return forwarded_for or request.remote_addr or 'unknown'
+
+
+def _record_auth_failure(kind: str, identifier: str) -> None:
+    now = datetime.utcnow()
+    attempts = _failed_attempts[kind][identifier]
+    attempts.append(now)
+    while attempts and now - attempts[0] > FAILED_ATTEMPT_WINDOW:
+        attempts.popleft()
+    if attempts and len(attempts) % FAILED_ATTEMPT_THRESHOLD == 0:
+        current_app.logger.warning(
+            "Repeated %s failures from %s (%s attempts in the last %s)",
+            kind,
+            identifier,
+            len(attempts),
+            FAILED_ATTEMPT_WINDOW,
+        )
+
 ## Authentication Routes
 ### The login view function
 @bp.route('/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute", methods=["POST"], error_message="Too many login attempts. Please try again later.")
 def login():
 
     if current_user.is_authenticated:
@@ -24,6 +56,7 @@ def login():
         
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
+            _record_auth_failure('login', _client_identifier())
             return redirect(url_for('auth.login'))
         
         login_user(user, remember=form.remember_me.data)
@@ -32,6 +65,8 @@ def login():
         if not next_page or urlsplit(next_page).netloc != '':
             next_page = url_for('main.index')
         return redirect(next_page)
+    elif form.is_submitted():
+        _record_auth_failure('login', _client_identifier())
     
     return render_template('auth/login.html', 
                            title='Sign In', 
@@ -47,6 +82,7 @@ def logout():
 
 
 @bp.route('/register', methods=['GET', 'POST'])
+@limiter.limit("3 per minute", methods=["POST"], error_message="Too many registrations from this IP. Please try again later.")
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
@@ -78,8 +114,11 @@ def register():
             login_user(user)
             return redirect(url_for('main.dashboard'))
 
+        _record_auth_failure('register', _client_identifier())
         # If family creation/joining fails, redirect back to registration
         return redirect(url_for('auth.register'))
+    elif form.is_submitted():
+        _record_auth_failure('register', _client_identifier())
 
     return render_template('auth/register.html', 
                            title='Register', 

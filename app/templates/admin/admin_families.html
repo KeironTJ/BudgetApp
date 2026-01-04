@@ -70,11 +70,12 @@
                         <h2>Add Family</h2>
                         <!-- Add Family Form -->
                         <form method="POST" action="{{ url_for('admin.add_family') }}">
+                            {{ create_family_form.hidden_tag() }}
                             <div class="mb-3">
-                                <label for="family_name" class="form-label">Family Name</label>
-                                <input type="text" class="form-control" id="family_name" name="family_name" required>
+                                {{ create_family_form.family_name.label(class="form-label") }}
+                                {{ create_family_form.family_name(class="form-control") }}
                             </div>
-                            <button type="submit" class="btn btn-primary">Add Family</button>
+                            {{ create_family_form.submit(class="btn btn-primary w-100") }}
                         </form>
                     </div>
                 </div>
@@ -93,34 +94,23 @@
                         <h2>Add User to Family</h2>
                         <!-- Add User to Family Form -->
                         <form method="POST" action="{{ url_for('admin.add_user_to_family') }}">
+                            {{ add_user_form.hidden_tag() }}
                             <div class="mb-3">
-                                <label for="family_id" class="form-label">Family</label>
-                                <select class="form-control" id="family_id" name="family_id" required>
-                                    {% for family in families %}
-                                        <option value="{{ family.id }}">{{ family.name }}</option>
-                                    {% endfor %}
-                                </select>
+                                {{ add_user_form.family_id.label(class="form-label") }}
+                                {{ add_user_form.family_id(class="form-select") }}
                             </div>
-                        
+
                             <div class="mb-3">
-                                <label for="user_id" class="form-label">User</label>
-                                <select class="form-control" id="user_id" name="user_id" required>
-                                    {% for user in users %}
-                                        <option value="{{ user.id }}">{{ user.username }}</option>
-                                    {% endfor %}
-                                </select>
+                                {{ add_user_form.user_id.label(class="form-label") }}
+                                {{ add_user_form.user_id(class="form-select") }}
                             </div>
-                        
+
                             <div class="mb-3">
-                                <label for="role_in_family" class="form-label">Role</label>
-                                <select class="form-control" id="role_in_family" name="role_in_family" required>
-                                    <option value="owner">Owner</option>
-                                    <option value="co-owner">Co-Owner</option>
-                                    <option value="member">Member</option>
-                                </select>
+                                {{ add_user_form.role_in_family.label(class="form-label") }}
+                                {{ add_user_form.role_in_family(class="form-select") }}
                             </div>
-                        
-                            <button type="submit" class="btn btn-primary">Add User to Family</button>
+
+                            {{ add_user_form.submit(class="btn btn-primary w-100") }}
                         </form>
                         
                     </div>

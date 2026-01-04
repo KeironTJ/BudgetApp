@@ -75,3 +75,19 @@ class TransferFamilyOwnershipForm(FlaskForm):
     family_id = SelectField('Family', validators=[DataRequired()], choices=[], coerce=int)
     new_owner_id = SelectField('New Owner', validators=[DataRequired()], choices=[], coerce=int)
     submit = SubmitField('Reassign Owner')
+
+
+class CreateFamilyForm(FlaskForm):
+    family_name = StringField('Family Name', validators=[DataRequired(), Length(max=128)])
+    submit = SubmitField('Add Family')
+
+
+class AddUserToFamilyForm(FlaskForm):
+    family_id = SelectField('Family', validators=[DataRequired()], choices=[], coerce=int)
+    user_id = SelectField('User', validators=[DataRequired()], choices=[], coerce=int)
+    role_in_family = SelectField(
+        'Role',
+        validators=[DataRequired()],
+        choices=[('owner', 'Owner'), ('co-owner', 'Co-Owner'), ('member', 'Member')],
+    )
+    submit = SubmitField('Add User to Family')
