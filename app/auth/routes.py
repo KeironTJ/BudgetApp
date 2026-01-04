@@ -1,7 +1,7 @@
 from app import db
 from app.auth.forms import LoginForm, RegistrationForm
 from app.models import User, UserRoles, Family, FamilyMembers
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, current_app
 from flask_login import current_user, login_user, logout_user 
 import sqlalchemy as sa 
 from urllib.parse import urlsplit
@@ -50,6 +50,9 @@ def logout():
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
+    if not current_app.config.get('ALLOW_REGISTRATION', False):
+        flash('Self-service signups are currently disabled.')
+        return redirect(url_for('auth.login'))
     
     form = RegistrationForm()
 
