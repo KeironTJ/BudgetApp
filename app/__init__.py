@@ -14,7 +14,21 @@ db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
 login.login_view = 'auth.login'
-socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
+
+
+def _parse_socket_origins():
+    origins = os.getenv('SOCKETIO_ALLOWED_ORIGINS')
+    if origins:
+        return [origin.strip() for origin in origins.split(',') if origin.strip()]
+    return [
+        'https://joneshq.co.uk',
+        'https://www.joneshq.co.uk',
+        'http://localhost',
+        'http://127.0.0.1:5000',
+    ]
+
+
+socketio = SocketIO(cors_allowed_origins=_parse_socket_origins(), async_mode="eventlet")
 limiter = Limiter(
     key_func=get_remote_address,
     default_limits=[],
